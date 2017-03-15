@@ -26,6 +26,8 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.h"
+#include "Mass.h"
+#include "Spring.h"
 
 #define PI 3.14159265359
 
@@ -238,8 +240,10 @@ bool loadUniforms(GLuint program, mat4 perspective, mat4 modelview)
 }
 
 //Draws buffers to screen
-void render(GLuint vao, int startElement, int numElements)
+void render(GLuint vao, int startElement, int numElements, GLuint program)
 {
+	glUseProgram(program);
+
 	glBindVertexArray(vao);		//Use the LINES vertex array
 
 	glDrawElements(
@@ -248,7 +252,7 @@ void render(GLuint vao, int startElement, int numElements)
 			GL_UNSIGNED_INT,	//Type
 			(void*)0			//Offset
 			);
-
+	glUseProgram(0);
 	CheckGLErrors("render");
 }
 
@@ -354,24 +358,23 @@ int main(int argc, char *argv[])
 	activeCamera = &cam;
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 20.f);
-
+	Mass mass;
+	Spring spring;
+	
+	spring.setMassA(&mass);
     // run an event-triggered main loop
     while (!glfwWindowShouldClose(window))
     {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		//Clear color and depth buffers (Haven't covered yet)
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
 
-		glUseProgram(program);
+        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.f));
+        render(vao, 0, indices.size(), program); // call function to draw our scene
 
-		loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.f));
+       
+        glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 
-        // call function to draw our scene
-        render(vao, 0, indices.size());
-
-        // scene is rendered to the back buffer, so swap to front for display
-        glfwSwapBuffers(window);
-
-        // sleep until next event before drawing again
-        glfwWaitEvents();
+ 
+        glfwWaitEvents(); // sleep until next event before drawing again
 	}
 
 	// clean up allocated resources before exit
@@ -381,7 +384,7 @@ int main(int argc, char *argv[])
 
 
 	glfwDestroyWindow(window);
-   glfwTerminate();
+	glfwTerminate();
 
    return 0;
 }
