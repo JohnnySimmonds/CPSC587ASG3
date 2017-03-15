@@ -44,7 +44,7 @@ GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 vec2 mousePos;
 bool leftmousePressed = false;
 bool rightmousePressed = false;
-
+bool play = false;
 Camera* activeCamera;
 
 GLFWwindow* window = 0;
@@ -66,6 +66,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        {
+			if(!play)
+				play = true;
+			else
+				play = false;
+		}
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -358,23 +365,46 @@ int main(int argc, char *argv[])
 	activeCamera = &cam;
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 20.f);
-	Mass mass;
+	Mass massA;
+	Mass massB;
 	Spring spring;
 	
-	spring.setMassA(&mass);
+	massA.setPosition(vec3(0.0f,0.0f,0.0f));
+	massA.setForce(vec3(0.0f, -9.81f, 0.0f));
+	massA.setVelocity(5.0f);
+	float dt = 0.01f;
+	float time = 0.0f;
+	spring.setMassA(&massA);
+    spring.setMassB(&massB);
+    
+    vec3 force;
+    mat4 moveObj;
     // run an event-triggered main loop
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
 
-        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.f));
+		if(play)
+			{
+				force = massA.getForce();
+
+				force *= time;
+				/*FIX HERE*/
+				if(time >= 1.0f)
+					time -= dt;
+				else
+					time += dt;	
+				
+				moveObj = translate(mat4(1.0f), force);
+			}
+        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), moveObj);
         render(vao, 0, indices.size(), program); // call function to draw our scene
 
        
         glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 
  
-        glfwWaitEvents(); // sleep until next event before drawing again
+        glfwPollEvents(); // sleep until next event before drawing again
 	}
 
 	// clean up allocated resources before exit
