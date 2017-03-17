@@ -41,6 +41,7 @@ string LoadSource(const string &filename);
 GLuint CompileShader(GLenum shaderType, const string &source);
 GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
 
+
 vec2 mousePos;
 bool leftmousePressed = false;
 bool rightmousePressed = false;
@@ -137,7 +138,7 @@ struct VertexBuffers{
 
 	GLuint id[COUNT];
 };
-
+void deleteStuff(GLuint vao, VertexBuffers vbo, GLuint program);
 //Describe the setup of the Vertex Array Object
 bool initVAO(GLuint vao, const VertexBuffers& vbo)
 {
@@ -247,20 +248,31 @@ bool loadUniforms(GLuint program, mat4 perspective, mat4 modelview)
 }
 
 //Draws buffers to screen
-void render(GLuint vao, int startElement, int numElements, GLuint program)
+void render(GLuint vao, int startElement, int numElements, GLuint program, VertexBuffers vbo, vector<vec3> points, vector<vec3>normals, vector<unsigned int> indices)
 {
-	glUseProgram(program);
-
+	
+	
 	glBindVertexArray(vao);		//Use the LINES vertex array
-
+	glUseProgram(program);
+	
+	loadBuffer(vbo, points, normals, indices);
+	
+	glEnable(GL_LINE_SMOOTH);
+	glLineWidth(15.0f);
+	
 	glDrawElements(
-			GL_TRIANGLES,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
+			GL_LINE_LOOP,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
 			numElements,		//How many indices
 			GL_UNSIGNED_INT,	//Type
 			(void*)0			//Offset
 			);
-	glUseProgram(0);
+	glDisable(GL_LINE_SMOOTH);
+ 
 	CheckGLErrors("render");
+	glUseProgram(0);
+	glBindVertexArray(0);
+
+
 }
 
 
@@ -299,9 +311,9 @@ GLFWwindow* createGLFWWindow()
     // attempt to create a window with an OpenGL 4.1 core profile context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    window = glfwCreateWindow(512, 512, "OpenGL Example", 0, 0);
+    window = glfwCreateWindow(1024, 1024, "OpenGL Example", 0, 0);
     if (!window) {
         cout << "Program failed to create GLFW window, TERMINATING" << endl;
         glfwTerminate();
@@ -359,24 +371,19 @@ int main(int argc, char *argv[])
 
 	generateSquare(&points, &normals, &indices, 1.f);
 
-	loadBuffer(vbo, points, normals, indices);
+	
 
-	Camera cam = Camera(vec3(0, 0, -1), vec3(0, 0, 1));
+	Camera cam = Camera(vec3(0, 0, -1), vec3(0, 0, 20));
 	activeCamera = &cam;
 	//float fovy, float aspect, float zNear, float zFar
-	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 20.f);
-	Mass massA;
-	Mass massB;
-	Spring spring;
-	
-	massA.setPosition(vec3(0.0f,0.0f,0.0f));
-	massA.setForce(vec3(0.0f, -9.81f, 0.0f));
-	massA.setVelocity(5.0f);
-	float dt = 0.01f;
+	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
+
+	Spring spring = Spring(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
+
+	float dt = 0.05f;
 	float time = 0.0f;
-	spring.setMassA(&massA);
-    spring.setMassB(&massB);
-    
+
+	vec3 applyForce = vec3(0.0f, -9.81f, 0.0f);
     vec3 force;
     mat4 moveObj;
     // run an event-triggered main loop
@@ -386,38 +393,34 @@ int main(int argc, char *argv[])
 
 		if(play)
 			{
-				force = massA.getForce();
-
+				force = applyForce;
 				force *= time;
-				/*FIX HERE*/
-				if(time >= 1.0f)
-					time -= dt;
-				else
-					time += dt;	
 				
+				if(time >= 3.0f)
+					time = 0;
+				time += dt;	
 				moveObj = translate(mat4(1.0f), force);
 			}
+		
+		
+		
         loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), moveObj);
-        render(vao, 0, indices.size(), program); // call function to draw our scene
+        
+        render(vao, 0, indices.size(), program, vbo, points, normals, indices); // call function to draw our scene
+		glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 
-       
-        glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
-
- 
         glfwPollEvents(); // sleep until next event before drawing again
 	}
 
 	// clean up allocated resources before exit
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(VertexBuffers::COUNT, vbo.id);
-	glDeleteProgram(program);
-
-
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
-   return 0;
+	
+	deleteStuff(vao, vbo, program);
+	
+	return 0;
 }
+
+/*
+        */
 
 // ==========================================================================
 // SUPPORT FUNCTION DEFINITIONS
@@ -425,6 +428,16 @@ int main(int argc, char *argv[])
 // --------------------------------------------------------------------------
 // OpenGL utility functions
 
+void deleteStuff(GLuint vao, VertexBuffers vbo, GLuint program)
+{
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(VertexBuffers::COUNT, vbo.id);
+	glDeleteProgram(program);
+
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
+}
 void QueryGLVersion()
 {
     // query opengl version and renderer information

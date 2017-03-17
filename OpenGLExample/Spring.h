@@ -4,6 +4,11 @@ class Spring
 {
 	
 public:
+
+	Spring(vec3 massAPos, vec3 massBPos);
+	~Spring();
+	
+	void applyForce();
 	Mass* getMassA();
 	Mass* getMassB();
 	void setMassA(Mass *massA);

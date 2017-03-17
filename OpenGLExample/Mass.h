@@ -8,7 +8,7 @@ class Mass
 {
 
 public:
-	
+	void resolveForces();
 	float getVelocity();
 	void setVelocity(float v);
 	float getMass();

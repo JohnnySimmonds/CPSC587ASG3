@@ -1,13 +1,28 @@
 #include "Spring.h"
 
 
-/*
-	Mass *a,*b;
-	float k; //stiffness of the spring
-	float restLength;
-	float dampingCo;
-*/
+Spring::Spring(vec3 massAPos, vec3 massBPos)
+{
+	Mass massA;
+	Mass massB;
+	
+	setMassA(&massA);
+	setMassB(&massB);
+	
+	a->setPosition(massAPos);
+	b->setPosition(massBPos);
+}
+Spring::~Spring()
+{
+	
+}
+void Spring::applyForce()
+{
+	
+}
 
+
+/*Getters and setters*/
 Mass* Spring::getMassA()
 {
 	return a;

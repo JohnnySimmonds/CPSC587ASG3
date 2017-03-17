@@ -1,5 +1,10 @@
 #include "Mass.h"
 
+void Mass::resolveForces()
+{
+	
+}
+/*Getters and Setters*/
 void Mass::setFixedPoint(vec3 fix)
 {
 	fixedPoint = fix;
