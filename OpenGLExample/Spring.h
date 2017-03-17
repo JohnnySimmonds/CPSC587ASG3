@@ -23,7 +23,9 @@ public:
 
 
 private:
-	Mass *a,*b;
+	Mass massA;
+	Mass massB;
+	Mass *a, *b;
 	float k; //stiffness of the spring
 	float restLength;
 	float dampingCo;

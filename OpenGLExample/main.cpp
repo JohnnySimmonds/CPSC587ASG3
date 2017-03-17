@@ -248,7 +248,7 @@ bool loadUniforms(GLuint program, mat4 perspective, mat4 modelview)
 }
 
 //Draws buffers to screen
-void render(GLuint vao, int startElement, int numElements, GLuint program, VertexBuffers vbo, vector<vec3> points, vector<vec3>normals, vector<unsigned int> indices)
+void renderLine(GLuint vao, int startElement, int numElements, GLuint program, VertexBuffers vbo, vector<vec3> points, vector<vec3>normals, vector<unsigned int> indices)
 {
 	
 	
@@ -258,15 +258,41 @@ void render(GLuint vao, int startElement, int numElements, GLuint program, Verte
 	loadBuffer(vbo, points, normals, indices);
 	
 	glEnable(GL_LINE_SMOOTH);
-	glLineWidth(15.0f);
+	glLineWidth(3.0f);
 	
 	glDrawElements(
-			GL_LINE_LOOP,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
+			GL_LINES,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
 			numElements,		//How many indices
 			GL_UNSIGNED_INT,	//Type
 			(void*)0			//Offset
 			);
 	glDisable(GL_LINE_SMOOTH);
+ 
+	CheckGLErrors("render");
+	glUseProgram(0);
+	glBindVertexArray(0);
+
+
+}
+void renderPoints(GLuint vao, int startElement, int numElements, GLuint program, VertexBuffers vbo, vector<vec3> points, vector<vec3>normals, vector<unsigned int> indices)
+{
+	
+	
+	glBindVertexArray(vao);		//Use the LINES vertex array
+	glUseProgram(program);
+	
+	loadBuffer(vbo, points, normals, indices);
+	
+	//glEnable(GL_LINE_SMOOTH);
+	glPointSize(100.0f);
+	
+	glDrawElements(
+			GL_POINTS,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
+			numElements,		//How many indices
+			GL_UNSIGNED_INT,	//Type
+			(void*)0			//Offset
+			);
+	//glDisable(GL_LINE_SMOOTH);
  
 	CheckGLErrors("render");
 	glUseProgram(0);
@@ -334,7 +360,12 @@ GLFWwindow* createGLFWWindow()
 
 // ==========================================================================
 // PROGRAM ENTRY POINT
-
+void printVec3(vec3 toPrint)
+{
+	cout << "X: " << toPrint.x << endl;
+	cout << "Y: " << toPrint.y << endl;
+	cout << "Z: " << toPrint.z << endl;
+}
 int main(int argc, char *argv[])
 {   
     window = createGLFWWindow();
@@ -378,7 +409,7 @@ int main(int argc, char *argv[])
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
 
-	Spring spring = Spring(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f));
+	Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 
 	float dt = 0.05f;
 	float time = 0.0f;
@@ -386,6 +417,39 @@ int main(int argc, char *argv[])
 	vec3 applyForce = vec3(0.0f, -9.81f, 0.0f);
     vec3 force;
     mat4 moveObj;
+    
+    vector<vec3> masses;
+    vector<unsigned int> massInd;
+    vector<vec3> colorMass;
+
+    
+    vector<vec3> springs;
+    vector<unsigned int> springInd;
+    vector<vec3> colorSpring;
+    
+    
+    vector<vec3> massFixed;
+    vector<unsigned int> massFixedInd;
+    vector<vec3> colorMassFixed;
+    
+    springs.push_back(spring.getMassA()->getPosition());
+    springs.push_back(spring.getMassB()->getPosition());
+    springInd.push_back(0);
+	springInd.push_back(1);
+	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
+	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
+	
+    
+    massFixed.push_back(spring.getMassA()->getPosition());
+    massFixedInd.push_back(0);
+    colorMassFixed.push_back(vec3(1.0f,1.0f,1.0f));
+    
+    masses.push_back(spring.getMassB()->getPosition());
+	massInd.push_back(0);
+	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
+	
+
+
     // run an event-triggered main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -404,9 +468,15 @@ int main(int argc, char *argv[])
 		
 		
 		
-        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), moveObj);
-        
-        render(vao, 0, indices.size(), program, vbo, points, normals, indices); // call function to draw our scene
+        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+		renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
+
+		loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+		renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
+      
+		loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+		renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
+      
 		glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 
         glfwPollEvents(); // sleep until next event before drawing again

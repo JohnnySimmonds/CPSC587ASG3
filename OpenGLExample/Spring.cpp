@@ -3,14 +3,24 @@
 
 Spring::Spring(vec3 massAPos, vec3 massBPos)
 {
-	Mass massA;
-	Mass massB;
+	
 	
 	setMassA(&massA);
 	setMassB(&massB);
 	
 	a->setPosition(massAPos);
 	b->setPosition(massBPos);
+	
+	float mass =  1.0f;
+	a->setMass(mass);
+	b->setMass(mass);
+	
+	a->setVelocity(1.0f);
+	b->setVelocity(1.0f);
+	
+	setStiffness(1.0f);
+	
+	
 }
 Spring::~Spring()
 {
