@@ -10,7 +10,7 @@ public:
 	Spring(vec3 massAPos, vec3 massBPos);
 	~Spring();
 	
-	void applyForce(vec3 f);
+	void applyForce(vec3 f, float dt);
 	Mass* getMassA();
 	Mass* getMassB();
 	void setMassA(Mass *massA);

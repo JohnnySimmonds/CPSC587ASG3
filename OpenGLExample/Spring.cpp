@@ -1,9 +1,10 @@
 #include "Spring.h"
 
-float vA = 1.0f;
-float vB = 0.5f;
-float k = 1.0f;
-float mass =  1.0f;
+float vA = 1.0f; //velocity of a
+float vB = 0.5f; //velocity of b
+float k = 0.5f; //stiffness of spring
+float mass =  1.0f; //mass
+float rL = 20.0f; //rest length
 Spring::Spring(vec3 massAPos, vec3 massBPos)
 {
 	
@@ -22,6 +23,7 @@ Spring::Spring(vec3 massAPos, vec3 massBPos)
 	
 	a->setVelocity(vA);
 	b->setVelocity(vB);
+	restLength = rL;
 	
 	setStiffness(k);
 	
@@ -37,12 +39,19 @@ void Spring::zeroForce(Mass *mA, Mass *mB)
 	mA->setForce(zero);
 	mB->setForce(zero);
 }
-void Spring::applyForce(vec3 f)
+void Spring::applyForce(vec3 f, float dt)
 {
+	vec3 posA = a->getPosition();
+	vec3 posB = b->getPosition();
+	vec3 L = posB-posA;
+	vec3 force = -k * (glm::length(L) - restLength) * (L / glm::length(L));
 	zeroForce(a,b);
-	
-	b->setForce(b->getForce() + f);
-	b->setPosition(b->getForce() + b->getPosition());
+	force = dt*(force + f);
+	//force = force;
+	printVec3(force);
+	b->setForce(force);
+	//b->setPrevPosition(b->getPosition());
+	b->setPosition(force + posB);
 	
 	
 	//printVec3(a->getForce());

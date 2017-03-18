@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
 
 	Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 
-	float dt = 0.005f;
+	float dt = 0.05f;
 	float time = 0.0f;
 
 	vec3 gravity = vec3(0.0f, -9.81f, 0.0f);
@@ -481,63 +481,57 @@ int main(int argc, char *argv[])
     vector<unsigned int> massFixedInd;
     vector<vec3> colorMassFixed;
     
-    /*
-    springs.push_back(spring.getMassA()->getPosition());
-    springs.push_back(spring.getMassB()->getPosition());
-    springInd.push_back(0);
-	springInd.push_back(1);
-	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
-	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
-	
-    
-    massFixed.push_back(spring.getMassA()->getPosition());
-    massFixedInd.push_back(0);
-    colorMassFixed.push_back(vec3(1.0f,1.0f,1.0f));
-    
-    masses.push_back(spring.getMassB()->getPosition());
-	massInd.push_back(0);
-	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
-	*/
+    float minHeight = -20.0f;
+	float extraTime = 0.0f;
 	setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 
     // run an event-triggered main loop
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-
+		dt = 0.05f;
+		dt += extraTime;
 		if(play)
 			{
-				force = gravity;
-				force *= time;
-				spring.applyForce(force);
-				if(time >= 3.0f)
-				{
-					printVec3(spring.getMassB()->getFixedPoint());	
-					spring.getMassB()->setPosition(spring.getMassB()->getFixedPoint());
-					time = 0;
-				}
-				time += dt;	
-				/*
-				moveObj = translate(mat4(1.0f), force);
-				*/
+				float timeStep = 1.0f / 1000.0f;
 				
-				setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
-			}
-		
-		
-		
-        loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-		renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
+				while (dt >= timeStep)
+				{
+					force = gravity;
+					//force *= dt;
+					spring.applyForce(force, dt);
+					/*
+					if(spring.getMassB()->getPosition().y < minHeight)
+					{
+						printVec3(spring.getMassB()->getFixedPoint());	
+						spring.getMassB()->setPosition(spring.getMassB()->getFixedPoint());
+						time = 0;
+						//dt = 0.05f;
+					}
+					time += dt;	
+					/*
+					moveObj = translate(mat4(1.0f), force);
+					*/
+					
+					setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
+					extraTime = dt;
+					dt -= timeStep;
+			
+			
+				  	}
+				}
+					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+					renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
-		loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-		renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
-      
-		loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-		renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
-      
-		glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
-
-        glfwPollEvents(); // sleep until next event before drawing again
+					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+					renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
+				  
+					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+					renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
+					
+					glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
+					glfwPollEvents(); // sleep until next event before drawing again
+		
 	}
 
 	// clean up allocated resources before exit

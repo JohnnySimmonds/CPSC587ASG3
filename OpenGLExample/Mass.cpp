@@ -34,6 +34,17 @@ void Mass::setPosition(vec3 p)
 	pos = p;
 }
 
+vec3 Mass::getPrevPosition()
+{
+	return prevPos;
+}
+
+void Mass::setPrevPosition(vec3 p)
+{
+	prevPos = p;
+}
+
+
 float Mass::getMass()
 {
 	return mass;

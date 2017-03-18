@@ -19,10 +19,13 @@ public:
 	void setForce(vec3 f);
 	vec3 getFixedPoint();
 	void setFixedPoint(vec3 fix);
+	vec3 getPrevPosition();
+	void setPrevPosition(vec3 p);
 
 private:
 	float mass;
 	vec3 pos;
+	vec3 prevPos;
 	float velocity;
 	vec3 force;
 	vec3 fixedPoint;
