@@ -366,6 +366,55 @@ void printVec3(vec3 toPrint)
 	cout << "Y: " << toPrint.y << endl;
 	cout << "Z: " << toPrint.z << endl;
 }
+
+void setupDraw(vector<vec3> &mass, vector<unsigned int> &massInds, vector<vec3> &massColor, 
+vector<vec3> &spring, vector<unsigned int> &springsInd, vector<vec3> &springColor, 
+vector<vec3> &massFix, vector<unsigned int> &fixedMassInd, vector<vec3> &fixedColor, Spring springOne)
+{
+
+    vector<vec3> masses;
+    vector<unsigned int> massInd;
+    vector<vec3> colorMass;
+
+    
+    vector<vec3> springs;
+    vector<unsigned int> springInd;
+    vector<vec3> colorSpring;
+    
+    
+    vector<vec3> massFixed;
+    vector<unsigned int> massFixedInd;
+    vector<vec3> colorMassFixed;
+    
+    springs.push_back(springOne.getMassA()->getPosition());
+    springs.push_back(springOne.getMassB()->getPosition());
+    springInd.push_back(0);
+	springInd.push_back(1);
+	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
+	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
+	
+    
+    massFixed.push_back(springOne.getMassA()->getPosition());
+    massFixedInd.push_back(0);
+    colorMassFixed.push_back(vec3(1.0f,1.0f,1.0f));
+    
+    masses.push_back(springOne.getMassB()->getPosition());
+	massInd.push_back(0);
+	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
+	
+	mass = masses;
+	massInds= massInd;
+	massColor = colorMass;
+	
+	spring = springs;
+	springsInd = springInd;
+	springColor = colorSpring;
+	
+	massFix = massFixed;
+	fixedMassInd = massFixedInd;
+	fixedColor = colorMassFixed;
+	
+}
 int main(int argc, char *argv[])
 {   
     window = createGLFWWindow();
@@ -411,10 +460,10 @@ int main(int argc, char *argv[])
 
 	Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 
-	float dt = 0.05f;
+	float dt = 0.005f;
 	float time = 0.0f;
 
-	vec3 applyForce = vec3(0.0f, -9.81f, 0.0f);
+	vec3 gravity = vec3(0.0f, -9.81f, 0.0f);
     vec3 force;
     mat4 moveObj;
     
@@ -432,6 +481,7 @@ int main(int argc, char *argv[])
     vector<unsigned int> massFixedInd;
     vector<vec3> colorMassFixed;
     
+    /*
     springs.push_back(spring.getMassA()->getPosition());
     springs.push_back(spring.getMassB()->getPosition());
     springInd.push_back(0);
@@ -447,8 +497,8 @@ int main(int argc, char *argv[])
     masses.push_back(spring.getMassB()->getPosition());
 	massInd.push_back(0);
 	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
-	
-
+	*/
+	setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 
     // run an event-triggered main loop
     while (!glfwWindowShouldClose(window))
@@ -457,13 +507,21 @@ int main(int argc, char *argv[])
 
 		if(play)
 			{
-				force = applyForce;
+				force = gravity;
 				force *= time;
-				
+				spring.applyForce(force);
 				if(time >= 3.0f)
+				{
+					printVec3(spring.getMassB()->getFixedPoint());	
+					spring.getMassB()->setPosition(spring.getMassB()->getFixedPoint());
 					time = 0;
+				}
 				time += dt;	
+				/*
 				moveObj = translate(mat4(1.0f), force);
+				*/
+				
+				setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 			}
 		
 		

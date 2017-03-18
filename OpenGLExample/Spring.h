@@ -1,5 +1,7 @@
 #pragma once
 #include "Mass.h"
+#include <iostream>
+using namespace std;
 class Spring
 {
 	
@@ -8,7 +10,7 @@ public:
 	Spring(vec3 massAPos, vec3 massBPos);
 	~Spring();
 	
-	void applyForce();
+	void applyForce(vec3 f);
 	Mass* getMassA();
 	Mass* getMassB();
 	void setMassA(Mass *massA);
@@ -19,8 +21,8 @@ public:
 	float getRestLength();
 	void setDampingCo(float damp);
 	float getDampingCo();
-	
-
+	void zeroForce(Mass *mA, Mass *mB);
+	void printVec3(vec3 toPrint);
 
 private:
 	Mass massA;
