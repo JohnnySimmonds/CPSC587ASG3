@@ -1,9 +1,6 @@
 #include "Mass.h"
 
 
-/*
-Vt+Δt = Vt + at Δt
-    Xt+Δt = Xt + Vt+ΔtΔt * */
 
 void Mass::resolveForces(float dt)
 {

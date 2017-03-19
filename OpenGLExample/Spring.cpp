@@ -4,7 +4,6 @@ vec3 vA = vec3(0.0f,0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f,0.0f,0.0f); //velocity of b
 float kA = 1.0f; //stiffness of spring
 float mass =  1.0f; //mass
-//float rL = -5.0f; //rest length
 Spring::Spring(vec3 massAPos, vec3 massBPos)
 {
 	
@@ -44,15 +43,17 @@ void Spring::applyForce(vec3 f, float dt)
 	float mB = massB.getMass();
 	float rL = (glm::length((massB.getPosition()-massA.getPosition())) - restLength);
 	float k = getStiffness();
-	float test = (1.0f - ((dampingCo * dampingCo) / (4.0f * massB.getMass() * k)));
+	//float test = (1.0f - ((dampingCo * dampingCo) / (4.0f * massB.getMass() * k)));
 	/*
 	printVec3(bANorm);
 	cout << "Rest Length : " << rL << endl;
 	cout << "Spring Stiffness : " << getStiffness() << endl;		
 	*/
 	//dampingCo = -1.0f * sqrtf((k/massB.getMass())) * sqrtf(test);
+	
+	dampingCo = cos(2.0f * 3.14159f *dt);
 	//cout << "DampingCo : "<< dampingCo << endl;
-	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB.getVelocity());
+	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB.getVelocity()); // potentially working damping need to work more here
 	
 	printVec3(force);
 	zeroForce(massA,massB);
