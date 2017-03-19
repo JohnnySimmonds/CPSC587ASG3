@@ -386,19 +386,19 @@ vector<vec3> &massFix, vector<unsigned int> &fixedMassInd, vector<vec3> &fixedCo
     vector<unsigned int> massFixedInd;
     vector<vec3> colorMassFixed;
     
-    springs.push_back(springOne.getMassA()->getPosition());
-    springs.push_back(springOne.getMassB()->getPosition());
+    springs.push_back(springOne.getMassA().getPosition());
+    springs.push_back(springOne.getMassB().getPosition());
     springInd.push_back(0);
 	springInd.push_back(1);
 	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
 	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
 	
     
-    massFixed.push_back(springOne.getMassA()->getPosition());
+    massFixed.push_back(springOne.getMassA().getPosition());
     massFixedInd.push_back(0);
     colorMassFixed.push_back(vec3(1.0f,1.0f,1.0f));
     
-    masses.push_back(springOne.getMassB()->getPosition());
+    masses.push_back(springOne.getMassB().getPosition());
 	massInd.push_back(0);
 	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
 	
@@ -489,11 +489,11 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.05f;
+		dt = 0.001f;
 		dt += extraTime;
 		if(play)
 			{
-				float timeStep = 1.0f / 1000.0f;
+				float timeStep = 1.0f / 10000.0f;
 				
 				while (dt >= timeStep)
 				{
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
 					/*
 					moveObj = translate(mat4(1.0f), force);
 					*/
-					
+
 					setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 					extraTime = dt;
 					dt -= timeStep;

@@ -2,30 +2,27 @@
 
 float vA = 1.0f; //velocity of a
 float vB = 0.5f; //velocity of b
-float k = 0.5f; //stiffness of spring
+float kA = 0.5f; //stiffness of spring
 float mass =  1.0f; //mass
-float rL = 20.0f; //rest length
+//float rL = -5.0f; //rest length
 Spring::Spring(vec3 massAPos, vec3 massBPos)
 {
 	
 	
-	setMassA(&massA);
-	setMassB(&massB);
+	massA.setPosition(massAPos);
+	massB.setPosition(massBPos);
 	
-	a->setPosition(massAPos);
-	b->setPosition(massBPos);
+	massA.setFixedPoint(massAPos);
+	massB.setFixedPoint(massBPos);
 	
-	a->setFixedPoint(massAPos);
-	b->setFixedPoint(massBPos);
+	massA.setMass(mass);
+	massB.setMass(mass);
 	
-	a->setMass(mass);
-	b->setMass(mass);
+	massA.setVelocity(vA);
+	massB.setVelocity(vB);
+	restLength = glm::length(massBPos - massAPos);
 	
-	a->setVelocity(vA);
-	b->setVelocity(vB);
-	restLength = rL;
-	
-	setStiffness(k);
+	setStiffness(kA);
 	
 	
 }
@@ -33,30 +30,34 @@ Spring::~Spring()
 {
 	
 }
-void Spring::zeroForce(Mass *mA, Mass *mB)
+void Spring::zeroForce(Mass mA, Mass mB)
 {
 	vec3 zero = vec3(0.0f,0.0f,0.0f);
-	mA->setForce(zero);
-	mB->setForce(zero);
+	mA.setForce(zero);
+	mB.setForce(zero);
 }
+/*TODO*/
 void Spring::applyForce(vec3 f, float dt)
 {
-	vec3 posA = a->getPosition();
-	vec3 posB = b->getPosition();
-	vec3 L = posB-posA;
-	vec3 force = -k * (glm::length(L) - restLength) * (L / glm::length(L));
-	zeroForce(a,b);
-	force = dt*(force + f);
-	//force = force;
-	printVec3(force);
-	b->setForce(force);
-	//b->setPrevPosition(b->getPosition());
-	b->setPosition(force + posB);
+
+	vec3 bANorm = (massB.getPosition()-massA.getPosition()) / glm::length((massB.getPosition()-massA.getPosition())); //B-A normalized
+	float mB = massB.getMass();
+	float rL = (glm::length((massB.getPosition()-massA.getPosition())) - restLength);
+	float k = getStiffness();
+	printVec3(bANorm);
+	cout << "Rest Length : " << rL << endl;
+	cout << "Spring Stiffness : " << getStiffness() << endl;	
+			
+	vec3 force = -1.0f * k * rL * bANorm;
+
+	zeroForce(massA,massB);
 	
+	force = dt * (force + f);
+	massA.setForce(-force);
+	massB.setForce(force);
 	
-	//printVec3(a->getForce());
-	//printVec3(b->getForce());
-	
+	massA.resolveForces(k);
+	massB.resolveForces(k);
 	
 }
 
@@ -67,23 +68,7 @@ void Spring::printVec3(vec3 toPrint)
 	cout << "Z: " << toPrint.z << endl;
 }
 /*Getters and setters*/
-Mass* Spring::getMassA()
-{
-	return a;
-}
-Mass* Spring::getMassB()
-{
-	return b;
-}
 
-void Spring::setMassA(Mass *massA)
-{
-	a = massA;
-}
-void Spring::setMassB(Mass *massB)
-{
-	b = massB;
-}
 void Spring::setStiffness(float stiff)
 {
 	k = stiff;
@@ -109,3 +94,13 @@ float Spring::getDampingCo()
 {
 	return dampingCo;
 }
+Mass Spring::getMassA()
+{
+	return massA;
+}
+Mass Spring::getMassB()
+{
+	return massB;
+}	
+
+

@@ -1,7 +1,10 @@
 #include "Mass.h"
-
-void Mass::resolveForces()
+float PI = 3.14159;
+void Mass::resolveForces(float k)
 {
+	//pos = sin(2.0f * PI * sqrtf(mass/k)) + pos;
+	pos =  ((1.0f / mass) * force) + pos;
+	//pos = (1.0f / (2.0f * PI)) * sqrtf(k/mass)*force + pos;
 	
 }
 /*Getters and Setters*/
