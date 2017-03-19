@@ -4,6 +4,7 @@ vec3 vA = vec3(0.0f,0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f,0.0f,0.0f); //velocity of b
 float kA = 1.0f; //stiffness of spring
 float mass =  1.0f; //mass
+#include <math.h>
 Spring::Spring(vec3 massAPos, vec3 massBPos)
 {
 	
@@ -51,7 +52,7 @@ void Spring::applyForce(vec3 f, float dt)
 	*/
 	//dampingCo = -1.0f * sqrtf((k/massB.getMass())) * sqrtf(test);
 	
-	dampingCo = cos(2.0f * 3.14159f *dt);
+	//dampingCo = exp(dt)* cos(2.0f * 3.14159f *dt); //UNCOMMENT TESTING DAMPING
 	//cout << "DampingCo : "<< dampingCo << endl;
 	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB.getVelocity()); // potentially working damping need to work more here
 	
