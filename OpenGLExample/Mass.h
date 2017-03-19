@@ -8,9 +8,9 @@ class Mass
 {
 
 public:
-	void resolveForces(float k);
-	float getVelocity();
-	void setVelocity(float v);
+	void resolveForces(float dt);
+	vec3 getVelocity();
+	void setVelocity(vec3 v);
 	float getMass();
 	void setMass(float m);
 	vec3 getPosition();
@@ -26,7 +26,7 @@ private:
 	float mass;
 	vec3 pos;
 	vec3 prevPos;
-	float velocity;
+	vec3 velocity;
 	vec3 force;
 	vec3 fixedPoint;
 

@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
 
 	Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 
-	float dt = 0.05f;
+	float dt = 0.01f;
 	float time = 0.0f;
 
 	vec3 gravity = vec3(0.0f, -9.81f, 0.0f);
@@ -489,32 +489,21 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.001f;
-		dt += extraTime;
+		dt = 0.01f;
+		//dt += extraTime;
 		if(play)
 			{
-				float timeStep = 1.0f / 10000.0f;
+				float timeStep = 1.0f / 1000.0f;
 				
 				while (dt >= timeStep)
 				{
 					force = gravity;
-					//force *= dt;
+					
 					spring.applyForce(force, dt);
-					/*
-					if(spring.getMassB()->getPosition().y < minHeight)
-					{
-						printVec3(spring.getMassB()->getFixedPoint());	
-						spring.getMassB()->setPosition(spring.getMassB()->getFixedPoint());
-						time = 0;
-						//dt = 0.05f;
-					}
-					time += dt;	
-					/*
-					moveObj = translate(mat4(1.0f), force);
-					*/
-
+				
 					setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
-					extraTime = dt;
+					
+					//extraTime = dt;
 					dt -= timeStep;
 			
 			

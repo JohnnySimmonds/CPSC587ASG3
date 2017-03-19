@@ -1,10 +1,16 @@
 #include "Mass.h"
-float PI = 3.14159;
-void Mass::resolveForces(float k)
+
+
+/*
+Vt+Δt = Vt + at Δt
+    Xt+Δt = Xt + Vt+ΔtΔt * */
+
+void Mass::resolveForces(float dt)
 {
-	//pos = sin(2.0f * PI * sqrtf(mass/k)) + pos;
-	pos =  ((1.0f / mass) * force) + pos;
-	//pos = (1.0f / (2.0f * PI)) * sqrtf(k/mass)*force + pos;
+	vec3 accel = (force/mass);
+	vec3 v = velocity + (accel * dt);
+	velocity = v;
+	pos = pos + (v * dt);
 	
 }
 /*Getters and Setters*/
@@ -18,11 +24,11 @@ vec3 Mass::getFixedPoint()
 	return fixedPoint;
 }
 
-float Mass::getVelocity()
+vec3 Mass::getVelocity()
 {
 	return velocity;
 }
-void Mass::setVelocity(float v)
+void Mass::setVelocity(vec3 v)
 {
 	velocity = v;
 }
