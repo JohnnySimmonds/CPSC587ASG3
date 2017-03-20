@@ -21,7 +21,8 @@ public:
 	void setFixedPoint(vec3 fix);
 	vec3 getPrevPosition();
 	void setPrevPosition(vec3 p);
-
+	void setIsFixed(bool isFix);
+	bool getIsFixed();
 private:
 	float mass;
 	vec3 pos;
@@ -29,5 +30,6 @@ private:
 	vec3 velocity;
 	vec3 force;
 	vec3 fixedPoint;
+	bool isFixed;
 
 };

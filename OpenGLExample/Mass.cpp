@@ -1,14 +1,25 @@
 #include "Mass.h"
 
 
-
+#include <iostream>
+using namespace std;
 void Mass::resolveForces(float dt)
 {
-	vec3 accel = (force/mass);
-	vec3 v = velocity + (accel * dt);
-	velocity = v;
-	pos = pos + (v * dt);
-	
+	if(!isFixed)
+	{
+		vec3 accel = (force/mass);
+		vec3 v = velocity + (accel * dt);
+		velocity = v;
+		pos = pos + (v * dt);
+	}
+}
+void Mass::setIsFixed(bool isFix)
+{
+	isFixed = isFix;
+}
+bool Mass::getIsFixed()
+{
+	return isFixed;
 }
 /*Getters and Setters*/
 void Mass::setFixedPoint(vec3 fix)

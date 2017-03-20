@@ -366,12 +366,37 @@ void printVec3(vec3 toPrint)
 	cout << "Y: " << toPrint.y << endl;
 	cout << "Z: " << toPrint.z << endl;
 }
-
-void setupDraw(vector<vec3> &mass, vector<unsigned int> &massInds, vector<vec3> &massColor, 
-vector<vec3> &spring, vector<unsigned int> &springsInd, vector<vec3> &springColor, 
-vector<vec3> &massFix, vector<unsigned int> &fixedMassInd, vector<vec3> &fixedColor, Spring springOne)
+void createSpringChain(vector<Spring*> *springs)
 {
+	//float springChain = 2.0f;
+	//float springChainTwo = -2.0f;
+	vec3 springOne = vec3(0.0f, -5.0f, 0.0f);
+	vec3 springTwo = vec3(0.0f, -10.0f, 0.0f);
+	
+	Spring *springRoot = new Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f), true, false);
+	//springRoot.getMassA().setIsFixed(true);
+	springs->push_back(springRoot);
 
+	//Spring springRootTwo = Spring(vec3(0.0f, -5.0f, 0.0f), vec3(0.0f, -10.0f, 0.0f), false, false);
+	//springs->push_back(springRootTwo);
+	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(0.0f, -10.0f, 0.0f), false, false);
+	springRootTwo->setMassB(springRoot->getMassB());
+	//springs->push_back(springRootTwo);
+	/*
+	for(int i = 0; i < 5; i++)
+	{
+		Spring *spring = new Spring(springOne, springTwo);
+		
+		springs->push_back(*spring);
+		//springChain += 2.0f;
+	//	springChainTwo -= 2.0f;
+	}*/
+}
+void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
+vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, 
+vector<vec3> *massFix, vector<unsigned int> *fixedMassInd, vector<vec3> *fixedColor, Spring *springOne)
+{
+/*
     vector<vec3> masses;
     vector<unsigned int> massInd;
     vector<vec3> colorMass;
@@ -385,23 +410,36 @@ vector<vec3> &massFix, vector<unsigned int> &fixedMassInd, vector<vec3> &fixedCo
     vector<vec3> massFixed;
     vector<unsigned int> massFixedInd;
     vector<vec3> colorMassFixed;
+  */  
+	//cout << "Spring ind size: " << springsInd->size() << endl;
+	if(springOne->getMassA()->getIsFixed())
+	{
+		cout << "It is Fixed" << endl;
+		printVec3(springOne->getMassA()->getPosition());
+	}	
+    spring->push_back(springOne->getMassA()->getPosition());
+    spring->push_back(springOne->getMassB()->getPosition());
+    springsInd->push_back(springsInd->size());
+	springsInd->push_back(springsInd->size());
+	springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
+	springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
+	
+    /*
+    massFix->push_back(springOne.getMassA().getPosition());
+    fixedMassInd->push_back(fixedMassInd->size());
+    fixedColor->push_back(vec3(1.0f,1.0f,1.0f));
+    */
     
-    springs.push_back(springOne.getMassA().getPosition());
-    springs.push_back(springOne.getMassB().getPosition());
-    springInd.push_back(0);
-	springInd.push_back(1);
-	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
-	colorSpring.push_back(vec3(0.0f, 1.0f, 1.0f));
+    mass->push_back(springOne->getMassA()->getPosition());
+	massInds->push_back(massInds->size());
+	massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
 	
     
-    massFixed.push_back(springOne.getMassA().getPosition());
-    massFixedInd.push_back(0);
-    colorMassFixed.push_back(vec3(1.0f,1.0f,1.0f));
-    
-    masses.push_back(springOne.getMassB().getPosition());
-	massInd.push_back(0);
-	colorMass.push_back(vec3(1.0f, 1.0f, 1.0f));
+    mass->push_back(springOne->getMassB()->getPosition());
+	massInds->push_back(massInds->size());
+	massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
 	
+	/*
 	mass = masses;
 	massInds= massInd;
 	massColor = colorMass;
@@ -413,7 +451,7 @@ vector<vec3> &massFix, vector<unsigned int> &fixedMassInd, vector<vec3> &fixedCo
 	massFix = massFixed;
 	fixedMassInd = massFixedInd;
 	fixedColor = colorMassFixed;
-	
+	*/
 }
 int main(int argc, char *argv[])
 {   
@@ -451,14 +489,16 @@ int main(int argc, char *argv[])
 
 	generateSquare(&points, &normals, &indices, 1.f);
 
-	
+	vector<Spring*> multipleSprings;
 
 	Camera cam = Camera(vec3(0, 0, -1), vec3(0, 0, 20));
 	activeCamera = &cam;
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
 
-	Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
+	//Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
+	
+	createSpringChain(&multipleSprings);
 
 	float dt = 0.01f;
 	float time = 0.0f;
@@ -483,14 +523,33 @@ int main(int argc, char *argv[])
     
     float minHeight = -20.0f;
 	float extraTime = 0.0f;
-	setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 
+
+	
+	/*
+	cout << "Size of Spring" << multipleSprings.size() << endl;
+	cout << "Spring One Mass A Pos: " << endl;
+	printVec3(multipleSprings[0].getMassA().getPosition());
+	cout << "Spring One Mass B Pos: " << endl;
+	printVec3(multipleSprings[0].getMassB().getPosition());
+	
+	cout << "Spring Two Mass A Pos: " << endl;
+	printVec3(multipleSprings[1].getMassA().getPosition());
+	cout << "Spring Two Mass B Pos: " << endl;
+	printVec3(multipleSprings[1].getMassB().getPosition());
+	 */
     // run an event-triggered main loop
+
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
 		dt = 0.01f;
 		//dt += extraTime;
+		for(int i = 0; i < multipleSprings.size(); i++)
+		{
+			setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[i]);
+		}		
+	
 		if(play)
 			{
 				float timeStep = 1.0f / 1000.0f;
@@ -498,10 +557,25 @@ int main(int argc, char *argv[])
 				while (dt >= timeStep)
 				{
 					force = gravity;
+					for(int j = 0; j < multipleSprings.size(); j++)
+					{
+						multipleSprings[j]->applyForce(force, dt);
+						setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[j]);
+						/*
+						cout << "Spring One Mass A Pos: " << endl;
+						printVec3(multipleSprings[0].getMassA().getPosition());
+						cout << "Spring One Mass B Pos: " << endl;
+						printVec3(multipleSprings[0].getMassB().getPosition());
+						
+						cout << "Spring Two Mass A Pos: " << endl;
+						printVec3(multipleSprings[1].getMassA().getPosition());
+						cout << "Spring Two Mass B Pos: " << endl;
+						printVec3(multipleSprings[1].getMassB().getPosition());
+						 */
+    // 
+					}
 					
-					spring.applyForce(force, dt);
-				
-					setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
+					//setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
 					
 					//extraTime = dt;
 					dt -= timeStep;
@@ -509,15 +583,31 @@ int main(int argc, char *argv[])
 			
 				  	}
 				}
+					
 					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 					renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 					renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
 				  
-					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-					renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
+				//	loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+					//renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
 					
+					masses.clear();
+					massInd.clear();
+					colorMass.clear();
+
+					
+					springs.clear();
+					springInd.clear();
+					colorSpring.clear();
+					
+					
+					massFixed.clear();
+					massFixedInd.clear();
+					colorMassFixed.clear();
+					
+					//glfwSwapInterval(1);
 					glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 					glfwPollEvents(); // sleep until next event before drawing again
 		
@@ -544,7 +634,7 @@ void deleteStuff(GLuint vao, VertexBuffers vbo, GLuint program)
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(VertexBuffers::COUNT, vbo.id);
 	glDeleteProgram(program);
-
+	
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

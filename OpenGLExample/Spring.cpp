@@ -3,23 +3,28 @@
 vec3 vA = vec3(0.0f,0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f,0.0f,0.0f); //velocity of b
 float kA = 1.0f; //stiffness of spring
-float mass =  1.0f; //mass
+float mass =  0.01f; //mass
 #include <math.h>
-Spring::Spring(vec3 massAPos, vec3 massBPos)
+Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 {
 	
+	massA = new Mass();
+	massB = new Mass();
 	
-	massA.setPosition(massAPos);
-	massB.setPosition(massBPos);
+	massA->setPosition(massAPos);
+	massB->setPosition(massBPos);
 	
-	massA.setFixedPoint(massAPos);
-	massB.setFixedPoint(massBPos);
+	massA->setFixedPoint(massAPos);
+	massB->setFixedPoint(massBPos);
 	
-	massA.setMass(mass);
-	massB.setMass(mass);
+	massA->setMass(mass);
+	massB->setMass(mass);
 	
-	massA.setVelocity(vA);
-	massB.setVelocity(vB);
+	massA->setVelocity(vA);
+	massB->setVelocity(vB);
+	
+	massA->setIsFixed(setFixedA);
+	massB->setIsFixed(setFixedB);
 	restLength = glm::length(massBPos - massAPos);
 	
 	setStiffness(kA);
@@ -28,21 +33,21 @@ Spring::Spring(vec3 massAPos, vec3 massBPos)
 }
 Spring::~Spring()
 {
-	
+
 }
-void Spring::zeroForce(Mass mA, Mass mB)
+void Spring::zeroForce(Mass *mA, Mass *mB)
 {
 	vec3 zero = vec3(0.0f,0.0f,0.0f);
-	mA.setForce(zero);
-	mB.setForce(zero);
+	mA->setForce(zero);
+	mB->setForce(zero);
 }
 /*TODO*/
 void Spring::applyForce(vec3 f, float dt)
 {	
 
-	vec3 bANorm = (massB.getPosition()-massA.getPosition()) / glm::length((massB.getPosition()-massA.getPosition())); //B-A normalized
-	float mB = massB.getMass();
-	float rL = (glm::length((massB.getPosition()-massA.getPosition())) - restLength);
+	vec3 bANorm = (massB->getPosition()-massA->getPosition()) / glm::length((massB->getPosition()-massA->getPosition())); //B-A normalized
+	float mB = massB->getMass();
+	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
 	float k = getStiffness();
 	//float test = (1.0f - ((dampingCo * dampingCo) / (4.0f * massB.getMass() * k)));
 	/*
@@ -52,19 +57,22 @@ void Spring::applyForce(vec3 f, float dt)
 	*/
 	//dampingCo = -1.0f * sqrtf((k/massB.getMass())) * sqrtf(test);
 	
-	//dampingCo = exp(dt)* cos(2.0f * 3.14159f *dt); //UNCOMMENT TESTING DAMPING
+	dampingCo = exp(-dt)* cos(2.0f * 3.14159f *dt); //UNCOMMENT TESTING DAMPING
 	//cout << "DampingCo : "<< dampingCo << endl;
-	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB.getVelocity()); // potentially working damping need to work more here
+	vec3 force = (-k * rL * bANorm)- (dampingCo * massB->getVelocity()); // potentially working damping need to work more here
 	
-	printVec3(force);
+	//printVec3(force);
 	zeroForce(massA,massB);
 	
 	force = force + f;
-	//massA.setForce(-force);
-	massB.setForce(force);
+	massA->setForce(force);
+	massB->setForce(force);
 	
-	//massA.resolveForces(dt);
-	massB.resolveForces(dt);
+	massA->resolveForces(dt);
+	if(massA->getIsFixed())
+		cout << "HEY IM FIXED" << endl;
+		
+	massB->resolveForces(dt);
 	
 }
 
@@ -101,13 +109,20 @@ float Spring::getDampingCo()
 {
 	return dampingCo;
 }
-Mass Spring::getMassA()
+Mass* Spring::getMassA()
 {
 	return massA;
 }
-Mass Spring::getMassB()
+Mass* Spring::getMassB()
 {
 	return massB;
 }	
-
+void Spring::setMassA(Mass *mA)
+{
+	massA = mA;
+}
+void Spring::setMassB(Mass *mB)
+{
+	massB = mB;
+}
 
