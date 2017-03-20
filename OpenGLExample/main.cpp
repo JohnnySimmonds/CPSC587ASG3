@@ -337,7 +337,7 @@ GLFWwindow* createGLFWWindow()
     // attempt to create a window with an OpenGL 4.1 core profile context
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     window = glfwCreateWindow(1024, 1024, "OpenGL Example", 0, 0);
     if (!window) {
@@ -368,51 +368,109 @@ void printVec3(vec3 toPrint)
 }
 void createSpringChain(vector<Spring*> *springs)
 {
-	//float springChain = 2.0f;
-	//float springChainTwo = -2.0f;
+
 	vec3 springOne = vec3(0.0f, -5.0f, 0.0f);
 	vec3 springTwo = vec3(0.0f, -10.0f, 0.0f);
 	
 	Spring *springRoot = new Spring(vec3(0.0f, 2.0f, 0.0f), vec3(0.0f, -2.0f, 0.0f), true, false);
-	//springRoot.getMassA().setIsFixed(true);
 	springs->push_back(springRoot);
 
-	//Spring springRootTwo = Spring(vec3(0.0f, -5.0f, 0.0f), vec3(0.0f, -10.0f, 0.0f), false, false);
-	//springs->push_back(springRootTwo);
-	//printVec3(springRoot->getMassB()->getPosition());
-	
-	/*
-	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(2.0f, 2.0f, 0.0f), false, false);
-	springRootTwo->setMassA(springRoot->getMassB());
-	springs->push_back(springRootTwo);
-	
-	
-	Spring *springRootThree = new Spring(springRootTwo->getMassB()->getPosition(), vec3(4.0f, 2.0f, 0.0f), false, false);
-	springRootThree->setMassA(springRootTwo->getMassB());
-	springs->push_back(springRootThree);
-	*/
-	
-	float test = 4.0f;
+
+	float setXMassB = 4.0f;
+	float setYMassB = 2.0f;
+	bool test = false;
 	Spring *springPrev = springRoot;
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 10; i++)
 	{
-		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(test , 2.0f, 0.0f), false, false);
+		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(setXMassB , setYMassB, 0.0f), false, false);
 		springNew->setMassA(springPrev->getMassB());
 		springs->push_back(springNew);
 		springPrev = springNew;
-		test+= 2.0f;
+		setXMassB += 2.0f;
+		if(test)
+		{
+			setYMassB += 1.0f;
+			test = false;
+		}
+		else
+		{
+			setYMassB -= 1.0f;
+			test = true;
+		}
+	}
+
+}
+
+/*
+ * vertices->push_back(vec3(1.0f, 1.0f, 1.f)); //0
+vertices->push_back(vec3(1.0f, -1.0f, 1.f)); //1
+vertices->push_back(vec3(-1.0f, -1.0f, 1.f)); //2
+vertices->push_back(vec3(-1.0f, 1.0f, 1.f)); //3
+vertices->push_back(vec3(-1.0f, -1.0f, -1.f)); //4
+vertices->push_back(vec3(-1.0f, 1.0f, -1.f)); //5
+vertices->push_back(vec3(1.0f, 1.0f, -1.f)); //6
+vertices->push_back(vec3(1.0f, -1.0f, -1.f)); //7
+ * */
+void createJelloCube(vector<Spring*> *springs)
+{
+	int numSpringsPerFace = 5;
+	vec3 springOne = vec3(0.0f, -5.0f, 0.0f);
+	vec3 springTwo = vec3(0.0f, -10.0f, 0.0f);
+	
+	Spring *springRoot = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), true, false);
+	springs->push_back(springRoot);
+
+	Spring *springPrev = springRoot;
+	
+	float moveX = -1.0f;
+	for(int i = 0; i < numSpringsPerFace; i++)
+	{
+		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveX, 1.0f, 1.0f), false, false);
+		springNew->setMassA(springPrev->getMassB());
+		springs->push_back(springNew);
+		springPrev = springNew;
+		moveX -= 2.0f;
 		
 	}
 
-	/*
-	for(int i = 0; i < 5; i++)
+// TODO make rest of the jello cube
+/*
+	float moveY = -1.0f;
+	springPrev = springRoot;
+	for(int i = 0; i < numSpringsPerFace; i++)
 	{
-		Spring *spring = new Spring(springOne, springTwo);
+		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(1.0f, moveY, 1.0f), false, false);
+		springNew->setMassA(springPrev->getMassB());
+		springs->push_back(springNew);
+		springPrev = springNew;
+		moveX -= 2.0f;
 		
-		springs->push_back(*spring);
-		//springChain += 2.0f;
-	//	springChainTwo -= 2.0f;
-	}*/
+	}
+*/
+/*
+	float setXMassB = 4.0f;
+	float setYMassB = 2.0f;
+	bool test = false;
+	Spring *springPrev = springRoot;
+	for(int i = 0; i < 10; i++)
+	{
+		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(setXMassB , setYMassB, 0.0f), false, false);
+		springNew->setMassA(springPrev->getMassB());
+		springs->push_back(springNew);
+		springPrev = springNew;
+		setXMassB += 2.0f;
+		if(test)
+		{
+			setYMassB += 1.0f;
+			test = false;
+		}
+		else
+		{
+			setYMassB -= 1.0f;
+			test = true;
+		}
+	}
+*/
 }
 void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
 vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, 
@@ -495,8 +553,9 @@ int main(int argc, char *argv[])
 
 	//Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 	
-	createSpringChain(&multipleSprings);
-
+	//createSpringChain(&multipleSprings);
+	
+	createJelloCube(&multipleSprings);
 	float dt = 0.01f;
 	float time = 0.0f;
 
