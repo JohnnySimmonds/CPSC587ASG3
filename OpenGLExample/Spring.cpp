@@ -60,16 +60,16 @@ void Spring::applyForce(vec3 f, float dt)
 	
 	dampingCo = exp(-dt)* cos(2.0f * 3.14159f *dt); //UNCOMMENT TESTING DAMPING
 	//cout << "DampingCo : "<< dampingCo << endl;
-	vec3 force = (-k * rL * bANorm)- (dampingCo * massB->getVelocity()); // potentially working damping need to work more here
+	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB->getVelocity()); // potentially working damping need to work more here
 	
 	//printVec3(force);
 	zeroForce(massA,massB);
 	
 	force = force + f;
-	//massA->setForce(force);
+	massA->setForce(-force);
 	massB->setForce(force);
 	
-	//massA->resolveForces(dt);
+	massA->resolveForces(dt);
 	massB->resolveForces(dt);
 	
 }

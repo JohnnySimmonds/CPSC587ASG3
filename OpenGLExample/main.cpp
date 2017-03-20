@@ -379,8 +379,9 @@ void createSpringChain(vector<Spring*> *springs)
 
 	//Spring springRootTwo = Spring(vec3(0.0f, -5.0f, 0.0f), vec3(0.0f, -10.0f, 0.0f), false, false);
 	//springs->push_back(springRootTwo);
-	printVec3(springRoot->getMassB()->getPosition());
-	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(0.0f, -10.0f, 0.0f), false, false);
+	//printVec3(springRoot->getMassB()->getPosition());
+	
+	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(10.0f, 5.0f, 0.0f), false, false);
 	springRootTwo->setMassA(springRoot->getMassB());
 	springs->push_back(springRootTwo);
 	
@@ -521,7 +522,7 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.01f;
+		dt = 0.001f;
 		//dt += extraTime;
 		for(int i = 0; i < multipleSprings.size(); i++)
 		{
@@ -549,22 +550,8 @@ int main(int argc, char *argv[])
 					{
 						multipleSprings[j]->applyForce(force, dt);
 						setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[j]);
-						/*
-						cout << "Spring One Mass A Pos: " << endl;
-						printVec3(multipleSprings[0].getMassA().getPosition());
-						cout << "Spring One Mass B Pos: " << endl;
-						printVec3(multipleSprings[0].getMassB().getPosition());
-						
-						cout << "Spring Two Mass A Pos: " << endl;
-						printVec3(multipleSprings[1].getMassA().getPosition());
-						cout << "Spring Two Mass B Pos: " << endl;
-						printVec3(multipleSprings[1].getMassB().getPosition());
-						 */
-    // 
 					}
-					
-					//setupDraw(masses, massInd, colorMass, springs, springInd, colorSpring, massFixed, massFixedInd, colorMassFixed, spring);
-					
+
 					//extraTime = dt;
 					dt -= timeStep;
 			
@@ -577,10 +564,7 @@ int main(int argc, char *argv[])
 
 					loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 					renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
-				  
-				//	loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-					//renderPoints(vao, 0, massFixedInd.size(), program, vbo, massFixed, colorMassFixed, massFixedInd);
-					
+
 					masses.clear();
 					massInd.clear();
 					colorMass.clear();
