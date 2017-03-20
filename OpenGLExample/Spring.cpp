@@ -2,8 +2,8 @@
 
 vec3 vA = vec3(0.0f,0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f,0.0f,0.0f); //velocity of b
-float kA = 1.0f; //stiffness of spring
-float mass =  0.01f; //mass
+float kA = 50.0f; //stiffness of spring
+float mass =  1.0f; //mass
 #include <math.h>
 Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 {
@@ -50,6 +50,8 @@ void Spring::applyForce(vec3 f, float dt)
 	float mB = massB->getMass();
 	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
 	float k = getStiffness();
+	vec3 forceA;
+	vec3 forceB;
 	//float test = (1.0f - ((dampingCo * dampingCo) / (4.0f * massB.getMass() * k)));
 	/*
 	printVec3(bANorm);
@@ -58,18 +60,23 @@ void Spring::applyForce(vec3 f, float dt)
 	*/
 	//dampingCo = -1.0f * sqrtf((k/massB.getMass())) * sqrtf(test);
 	
-	dampingCo = exp(-dt)* cos(2.0f * 3.14159f *dt); //UNCOMMENT TESTING DAMPING
+	dampingCo = exp(-dt) * cos(2.0f * 3.14159f * dt); //UNCOMMENT TESTING DAMPING
+	cout << "Damping CO: " << dampingCo << endl;
 	//cout << "DampingCo : "<< dampingCo << endl;
-	vec3 force = (-k * rL * bANorm);// - (dampingCo * massB->getVelocity()); // potentially working damping need to work more here
+	//dampingCo = 0.01f;
+	forceA = (-k * rL * bANorm) - (dampingCo * (massA->getVelocity())); // potentially working damping need to work more here
+	
+	forceB = (-k * rL * bANorm) - (dampingCo * (massB->getVelocity())); // potentially working damping need to work more here
 	
 	//printVec3(force);
 	zeroForce(massA,massB);
 	
-	force = force + f;
-	massA->setForce(-force);
-	massB->setForce(force);
+	forceB = forceB + (f*massB->getMass());
+	forceA = forceA + (f*massA->getMass());
+	//massA->setForce(forceA);
+	massB->setForce(forceB);
 	
-	massA->resolveForces(dt);
+	//massA->resolveForces(dt);
 	massB->resolveForces(dt);
 	
 }

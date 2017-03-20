@@ -373,7 +373,7 @@ void createSpringChain(vector<Spring*> *springs)
 	vec3 springOne = vec3(0.0f, -5.0f, 0.0f);
 	vec3 springTwo = vec3(0.0f, -10.0f, 0.0f);
 	
-	Spring *springRoot = new Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f), true, false);
+	Spring *springRoot = new Spring(vec3(0.0f, 2.0f, 0.0f), vec3(0.0f, -2.0f, 0.0f), true, false);
 	//springRoot.getMassA().setIsFixed(true);
 	springs->push_back(springRoot);
 
@@ -381,7 +381,7 @@ void createSpringChain(vector<Spring*> *springs)
 	//springs->push_back(springRootTwo);
 	//printVec3(springRoot->getMassB()->getPosition());
 	
-	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(10.0f, 5.0f, 0.0f), false, false);
+	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(2.0f, 2.0f, 0.0f), false, false);
 	springRootTwo->setMassA(springRoot->getMassB());
 	springs->push_back(springRootTwo);
 	
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.001f;
+		dt = 0.003f;
 		//dt += extraTime;
 		for(int i = 0; i < multipleSprings.size(); i++)
 		{
@@ -531,11 +531,6 @@ int main(int argc, char *argv[])
 			//printVec3(multipleSprings[i]->getMassA()->getPosition());
 			//printVec3(multipleSprings[i]->getMassB()->getPosition());
 				
-				for(int j = 0; j < springInd.size(); j++)
-				{
-					//cout << "Index : "<< j << " Spring Ind number: "<< springInd[j] << endl;
-					
-				}
 			
 		}		
 	
