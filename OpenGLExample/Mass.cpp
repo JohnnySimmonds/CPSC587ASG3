@@ -21,6 +21,13 @@ void Mass::resolveForces(float dt)
 		velocity = v;
 		pos = pos + (v * dt);
 	}
+	printVec3(pos);
+}
+void Mass::printVec3(vec3 toPrint)
+{
+	cout << "X: " << toPrint.x << endl;
+	cout << "Y: " << toPrint.y << endl;
+	cout << "Z: " << toPrint.z << endl;
 }
 void Mass::setIsFixed(bool isFix)
 {

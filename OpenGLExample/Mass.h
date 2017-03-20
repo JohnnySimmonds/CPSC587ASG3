@@ -25,6 +25,7 @@ public:
 	void setPrevPosition(vec3 p);
 	void setIsFixed(bool isFix);
 	bool getIsFixed();
+	void printVec3(vec3 toPrint);
 private:
 	float mass;
 	vec3 pos;

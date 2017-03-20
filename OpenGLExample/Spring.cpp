@@ -66,7 +66,7 @@ void Spring::applyForce(vec3 f, float dt)
 	
 	forceB = forceB + (f*massB->getMass());
 	forceA = forceA + (f*massA->getMass());
-	//massA->setForce(forceA);
+	//massA->setForce(-forceA);
 	massB->setForce(forceB);
 	
 	//massA->resolveForces(dt);
