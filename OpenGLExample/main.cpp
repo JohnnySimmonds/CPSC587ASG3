@@ -381,7 +381,7 @@ void createSpringChain(vector<Spring*> *springs)
 	//springs->push_back(springRootTwo);
 	//printVec3(springRoot->getMassB()->getPosition());
 	
-	
+	/*
 	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(2.0f, 2.0f, 0.0f), false, false);
 	springRootTwo->setMassA(springRoot->getMassB());
 	springs->push_back(springRootTwo);
@@ -390,18 +390,20 @@ void createSpringChain(vector<Spring*> *springs)
 	Spring *springRootThree = new Spring(springRootTwo->getMassB()->getPosition(), vec3(4.0f, 2.0f, 0.0f), false, false);
 	springRootThree->setMassA(springRootTwo->getMassB());
 	springs->push_back(springRootThree);
-	/*
+	*/
+	
 	float test = 4.0f;
 	Spring *springPrev = springRoot;
 	for(int i = 0; i < 3; i++)
 	{
 		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(test , 2.0f, 0.0f), false, false);
+		springNew->setMassA(springPrev->getMassB());
 		springs->push_back(springNew);
 		springPrev = springNew;
 		test+= 2.0f;
 		
 	}
-*/
+
 	/*
 	for(int i = 0; i < 5; i++)
 	{
