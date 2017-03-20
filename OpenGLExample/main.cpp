@@ -381,11 +381,27 @@ void createSpringChain(vector<Spring*> *springs)
 	//springs->push_back(springRootTwo);
 	//printVec3(springRoot->getMassB()->getPosition());
 	
+	
 	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(2.0f, 2.0f, 0.0f), false, false);
 	springRootTwo->setMassA(springRoot->getMassB());
 	springs->push_back(springRootTwo);
 	
-
+	
+	Spring *springRootThree = new Spring(springRootTwo->getMassB()->getPosition(), vec3(4.0f, 2.0f, 0.0f), false, false);
+	springRootThree->setMassA(springRootTwo->getMassB());
+	springs->push_back(springRootThree);
+	/*
+	float test = 4.0f;
+	Spring *springPrev = springRoot;
+	for(int i = 0; i < 3; i++)
+	{
+		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(test , 2.0f, 0.0f), false, false);
+		springs->push_back(springNew);
+		springPrev = springNew;
+		test+= 2.0f;
+		
+	}
+*/
 	/*
 	for(int i = 0; i < 5; i++)
 	{
@@ -522,8 +538,8 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window))
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.003f;
-		//dt += extraTime;
+		dt = 0.009f;
+		dt += extraTime;
 		for(int i = 0; i < multipleSprings.size(); i++)
 		{
 			setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[i]);
@@ -547,7 +563,7 @@ int main(int argc, char *argv[])
 						setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[j]);
 					}
 
-					//extraTime = dt;
+					extraTime = dt;
 					dt -= timeStep;
 			
 			
