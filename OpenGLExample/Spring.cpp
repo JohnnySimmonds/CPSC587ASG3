@@ -33,7 +33,8 @@ Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 }
 Spring::~Spring()
 {
-
+	delete massA;
+	delete massB;
 }
 void Spring::zeroForce(Mass *mA, Mass *mB)
 {
@@ -65,13 +66,10 @@ void Spring::applyForce(vec3 f, float dt)
 	zeroForce(massA,massB);
 	
 	force = force + f;
-	massA->setForce(force);
+	//massA->setForce(force);
 	massB->setForce(force);
 	
-	massA->resolveForces(dt);
-	if(massA->getIsFixed())
-		cout << "HEY IM FIXED" << endl;
-		
+	//massA->resolveForces(dt);
 	massB->resolveForces(dt);
 	
 }

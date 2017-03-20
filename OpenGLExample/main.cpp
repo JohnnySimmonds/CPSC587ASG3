@@ -258,7 +258,7 @@ void renderLine(GLuint vao, int startElement, int numElements, GLuint program, V
 	loadBuffer(vbo, points, normals, indices);
 	
 	glEnable(GL_LINE_SMOOTH);
-	glLineWidth(3.0f);
+	glLineWidth(2.0f);
 	
 	glDrawElements(
 			GL_LINES,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
@@ -284,7 +284,7 @@ void renderPoints(GLuint vao, int startElement, int numElements, GLuint program,
 	loadBuffer(vbo, points, normals, indices);
 	
 	//glEnable(GL_LINE_SMOOTH);
-	glPointSize(100.0f);
+	glPointSize(10.0f);
 	
 	glDrawElements(
 			GL_POINTS,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
@@ -379,9 +379,12 @@ void createSpringChain(vector<Spring*> *springs)
 
 	//Spring springRootTwo = Spring(vec3(0.0f, -5.0f, 0.0f), vec3(0.0f, -10.0f, 0.0f), false, false);
 	//springs->push_back(springRootTwo);
+	printVec3(springRoot->getMassB()->getPosition());
 	Spring *springRootTwo = new Spring(springRoot->getMassB()->getPosition(), vec3(0.0f, -10.0f, 0.0f), false, false);
-	springRootTwo->setMassB(springRoot->getMassB());
-	//springs->push_back(springRootTwo);
+	springRootTwo->setMassA(springRoot->getMassB());
+	springs->push_back(springRootTwo);
+	
+
 	/*
 	for(int i = 0; i < 5; i++)
 	{
@@ -396,40 +399,28 @@ void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> 
 vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, 
 vector<vec3> *massFix, vector<unsigned int> *fixedMassInd, vector<vec3> *fixedColor, Spring *springOne)
 {
-/*
-    vector<vec3> masses;
-    vector<unsigned int> massInd;
-    vector<vec3> colorMass;
 
-    
-    vector<vec3> springs;
-    vector<unsigned int> springInd;
-    vector<vec3> colorSpring;
-    
-    
-    vector<vec3> massFixed;
-    vector<unsigned int> massFixedInd;
-    vector<vec3> colorMassFixed;
-  */  
-	//cout << "Spring ind size: " << springsInd->size() << endl;
-	if(springOne->getMassA()->getIsFixed())
-	{
-		cout << "It is Fixed" << endl;
-		printVec3(springOne->getMassA()->getPosition());
-	}	
     spring->push_back(springOne->getMassA()->getPosition());
     spring->push_back(springOne->getMassB()->getPosition());
-    springsInd->push_back(springsInd->size());
+    /*
+    if(springsInd->size() == 0)
+	{
+		springsInd->push_back(0);
+		springsInd->push_back(springsInd->size());
+
+	}
+    else
+    {
+		springsInd->push_back(springsInd->size()-1);
+		springsInd->push_back(springsInd->size()-1);
+
+	}*/
+	springsInd->push_back(springsInd->size());
 	springsInd->push_back(springsInd->size());
 	springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
 	springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
-	
-    /*
-    massFix->push_back(springOne.getMassA().getPosition());
-    fixedMassInd->push_back(fixedMassInd->size());
-    fixedColor->push_back(vec3(1.0f,1.0f,1.0f));
-    */
-    
+
+
     mass->push_back(springOne->getMassA()->getPosition());
 	massInds->push_back(massInds->size());
 	massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
@@ -438,20 +429,7 @@ vector<vec3> *massFix, vector<unsigned int> *fixedMassInd, vector<vec3> *fixedCo
     mass->push_back(springOne->getMassB()->getPosition());
 	massInds->push_back(massInds->size());
 	massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
-	
-	/*
-	mass = masses;
-	massInds= massInd;
-	massColor = colorMass;
-	
-	spring = springs;
-	springsInd = springInd;
-	springColor = colorSpring;
-	
-	massFix = massFixed;
-	fixedMassInd = massFixedInd;
-	fixedColor = colorMassFixed;
-	*/
+
 }
 int main(int argc, char *argv[])
 {   
@@ -548,6 +526,16 @@ int main(int argc, char *argv[])
 		for(int i = 0; i < multipleSprings.size(); i++)
 		{
 			setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, &massFixed, &massFixedInd, &colorMassFixed, multipleSprings[i]);
+			
+			//printVec3(multipleSprings[i]->getMassA()->getPosition());
+			//printVec3(multipleSprings[i]->getMassB()->getPosition());
+				
+				for(int j = 0; j < springInd.size(); j++)
+				{
+					//cout << "Index : "<< j << " Spring Ind number: "<< springInd[j] << endl;
+					
+				}
+			
 		}		
 	
 		if(play)

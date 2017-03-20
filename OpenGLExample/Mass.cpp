@@ -3,6 +3,15 @@
 
 #include <iostream>
 using namespace std;
+
+
+Mass::Mass()
+{
+	
+}
+Mass::~Mass()
+{
+}
 void Mass::resolveForces(float dt)
 {
 	if(!isFixed)

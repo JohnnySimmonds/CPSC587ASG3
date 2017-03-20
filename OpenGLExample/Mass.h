@@ -8,6 +8,8 @@ class Mass
 {
 
 public:
+	Mass();
+	~Mass();
 	void resolveForces(float dt);
 	vec3 getVelocity();
 	void setVelocity(vec3 v);
