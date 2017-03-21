@@ -1,9 +1,9 @@
 #include "Spring.h"
 
-vec3 vA = vec3(0.0f,0.0f,0.0f); //velocity of a
-vec3 vB = vec3(0.0f,0.0f,0.0f); //velocity of b
+vec3 vA = vec3(0.0f, 0.0f,0.0f); //velocity of a
+vec3 vB = vec3(0.0f, 0.0f,0.0f); //velocity of b
 float kA = 1.0f; //stiffness of spring
-float mass =  1.0f; //mass
+float mass =  10.0f; //mass
 #include <math.h>
 Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 {
@@ -45,10 +45,12 @@ void Spring::zeroForce(Mass *mA, Mass *mB)
 /*TODO*/
 void Spring::applyForce(vec3 f, float dt)
 {	
+	f = f*dt;
+	//float test = glm::length((massB->getPosition()-massA->getPosition()));
 
-	vec3 bANorm = (massB->getPosition()-massA->getPosition()) / glm::length((massB->getPosition()-massA->getPosition())); //B-A normalized
+	vec3 bANorm = ((massB->getPosition()-massA->getPosition()) / glm::length((massB->getPosition()-massA->getPosition()))); //B-A normalized
 	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
-	float amp = 0.85f;
+	float amp = 0.95f;
 	float k = getStiffness();
 	vec3 forceA;
 	vec3 forceB;
@@ -56,17 +58,18 @@ void Spring::applyForce(vec3 f, float dt)
 	dampingCo =  amp * exp(-dt) * cos(2.0f * 3.14159f * dt);
 	if(rL < -1.0f)
 	{
-		cout << "Rest Length : " << rL << endl;
+		//cout << "Rest Length : " << rL << endl;
 	}
 		
-	
+
 	forceA = (-k * rL * bANorm) - (dampingCo * (massA->getVelocity()));
 	
 	forceB = (-k * rL * bANorm) - (dampingCo * (massB->getVelocity()));
 
 	zeroForce(massA,massB);
-	
+	//printVec3(forceB);
 	forceB = forceB + (f*massB->getMass());
+	//printVec3(forceB);
 	forceA = forceA + (f*massA->getMass());
 	massA->setForce(forceA);
 	massB->setForce(forceB);
