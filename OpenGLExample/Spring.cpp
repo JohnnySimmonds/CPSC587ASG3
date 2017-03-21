@@ -47,33 +47,40 @@ void Spring::applyForce(vec3 f, float dt)
 {	
 
 	vec3 bANorm = (massB->getPosition()-massA->getPosition()) / glm::length((massB->getPosition()-massA->getPosition())); //B-A normalized
-	//float mB = massB->getMass();
 	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
-	float amp = 0.95f;
+	float amp = 0.85f;
 	float k = getStiffness();
 	vec3 forceA;
 	vec3 forceB;
 
 	dampingCo =  amp * exp(-dt) * cos(2.0f * 3.14159f * dt);
+	if(rL < -1.0f)
+	{
+		cout << "Rest Length : " << rL << endl;
+	}
+		
 	
+	forceA = (-k * rL * bANorm) - (dampingCo * (massA->getVelocity()));
 	
-	forceA = (-k * rL * bANorm) - (dampingCo * (massA->getVelocity())); // potentially working damping need to work more here
-	
-	forceB = (-k * rL * bANorm) - (dampingCo * (massB->getVelocity())); // potentially working damping need to work more here
-	
-	//printVec3(force);
+	forceB = (-k * rL * bANorm) - (dampingCo * (massB->getVelocity()));
+
 	zeroForce(massA,massB);
 	
 	forceB = forceB + (f*massB->getMass());
 	forceA = forceA + (f*massA->getMass());
-	//massA->setForce(-forceA);
+	massA->setForce(forceA);
 	massB->setForce(forceB);
 	
-	//massA->resolveForces(dt);
+	massA->resolveForces(dt);
 	massB->resolveForces(dt);
 	
 }
 
+void Spring::unCalced()
+{
+	massA->setCalced(false);
+	massB->setCalced(false);
+}
 void Spring::printVec3(vec3 toPrint)
 {
 	cout << "X: " << toPrint.x << endl;

@@ -23,7 +23,7 @@ public:
 	float getDampingCo();
 	void zeroForce(Mass *mA, Mass *mB);
 	void printVec3(vec3 toPrint);
-
+	void unCalced();
 private:
 
 	Mass *massA;

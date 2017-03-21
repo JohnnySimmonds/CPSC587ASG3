@@ -26,7 +26,9 @@ public:
 	void setIsFixed(bool isFix);
 	bool getIsFixed();
 	void printVec3(vec3 toPrint);
+	void setCalced(bool isCalced);
 private:
+	bool calced = false;
 	float mass;
 	vec3 pos;
 	vec3 prevPos;

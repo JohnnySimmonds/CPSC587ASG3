@@ -14,14 +14,20 @@ Mass::~Mass()
 }
 void Mass::resolveForces(float dt)
 {
-	if(!isFixed)
+	vec3 g = vec3(0.0f, -9.81f, 0.0f);
+	if(!isFixed && !calced && pos.y > -10.0f)
 	{
 		vec3 accel = (force/mass);
 		vec3 v = velocity + (accel * dt);
 		velocity = v;
 		pos = pos + (v * dt);
+		calced = true;
 	}
-	printVec3(pos);
+	//printVec3(pos);
+}
+void Mass::setCalced(bool isCalced)
+{
+		calced = isCalced;
 }
 void Mass::printVec3(vec3 toPrint)
 {
