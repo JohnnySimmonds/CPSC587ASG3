@@ -17,8 +17,9 @@ public:
 	void setMassB(Mass *mB);
 	void setStiffness(float stiff);
 	float getStiffness();
-	void setRestLength(float restLen);
-	float getRestLength();
+	//void setRestLength(float restLen);
+	//float getRestLength();
+	
 	void setDampingCo(float damp);
 	float getDampingCo();
 	void zeroForce(Mass *mA, Mass *mB);
@@ -29,6 +30,7 @@ private:
 	Mass *massA;
 	Mass *massB;
 	float k; //stiffness of the spring
+	float restLengthA, restLengthB;
 	float restLength;
 	float dampingCo;
 

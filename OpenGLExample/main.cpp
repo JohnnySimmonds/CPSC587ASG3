@@ -46,6 +46,9 @@ vec2 mousePos;
 bool leftmousePressed = false;
 bool rightmousePressed = false;
 bool play = false;
+bool springChain = false;
+int scene = 2;
+bool initSpringSys = false;
 Camera* activeCamera;
 
 GLFWwindow* window = 0;
@@ -74,6 +77,22 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			else
 				play = false;
 		}
+	
+   if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+	{
+	
+		scene += 1;
+		if(scene == 3)
+			scene = 0;
+			
+		if(!springChain)
+			springChain = true;
+		else
+			springChain = false;
+		
+		initSpringSys = false;
+		//initSpringSys = false;
+	}
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -412,9 +431,9 @@ vertices->push_back(vec3(1.0f, -1.0f, -1.f)); //7
  * */
 void createCube(vector<Spring*> *springs)
 {
-	Spring *springRoot = new Spring(vec3(-1.0f,1.0f,1.0f), vec3(-1.0f,-1.0f,1.0f), false,false);
-	springs->push_back(springRoot);
-	/*
+	//Spring *springRoot = new Spring(vec3(-1.0f,1.0f,1.0f), vec3(-1.0f,-1.0f,1.0f), false,false);
+	//springs->push_back(springRoot);
+	
 	Spring *springRoot = new Spring(vec3(1.0f,1.0f,1.0f), vec3(-1.0f,1.0f,1.0f), false,false);
 	springs->push_back(springRoot);
 	Spring *springTest = new Spring(springRoot->getMassA()->getPosition(), vec3(1.0f,-1.0f,1.0f), false,false);
@@ -427,37 +446,49 @@ void createCube(vector<Spring*> *springs)
 	springTest3->setMassA(springTest2->getMassA());
 	springTest3->setMassB(springRoot->getMassB());
 	springs->push_back(springTest3);
-*/
+	
+	Spring *springCross = new Spring (springRoot->getMassA()->getPosition(), springTest2->getMassA()->getPosition(), false, false);
+	springCross->setMassA(springRoot->getMassA());
+	springCross->setMassB(springTest2->getMassA());
+	springs->push_back(springCross);
+	
+	Spring *springCross2 = new Spring (springRoot->getMassB()->getPosition(), springTest2->getMassB()->getPosition(), false, false);
+	springCross2->setMassA(springRoot->getMassB());
+	springCross2->setMassB(springTest2->getMassB());
+	springs->push_back(springCross2);
+	
 } 
  
 void createJelloCube(vector<Spring*> *springs)
 {
 	
-	int numSpringsPerFace = 5;
-
+	int numSpringsPerFace = 0;
+	Spring *springNew;
 
 	/*Creating the Top row of the cube*/
 	
-	Spring *springRoot = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(-1.0f, 1.0f, 1.0f), false, false);
+	Spring *springRoot = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f), false, false);
 	springs->push_back(springRoot);
 	Spring *springPrev = springRoot;
 	float moveMassBX = -1.0f;
 	for(int i = 0; i < numSpringsPerFace; i++)
 	{
-		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBX, 1.0f, 1.0f), false, false);
+		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBX, 1.0f, 1.0f), false, false);
 		springNew->setMassA(springPrev->getMassB());
 		springs->push_back(springNew);
 		springPrev = springNew;
-		moveMassBX -= 2.0f;
+		moveMassBX -= 1.0f;
 		
 	}
 
 	/* Create Left column*/
 	
+	
 	float currSpotX = springPrev->getMassB()->getPosition().x;
 	//Spring *springYUp = new Spring(vec3(currSpotX, currSpotY, 1.0f), vec3(currSpotX, currSpotY+2.0f, 1.0f), false, false);
-	Spring *springYUp = new Spring(springPrev->getMassA()->getPosition(), vec3(currSpotX, 1.0f, 1.0f), false, false);
-	springYUp->setMassA(springPrev->getMassA());
+	Spring *springYUp = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, 0.0f, 1.0f), false, false);
+	springYUp->setMassA(springPrev->getMassB());
+	//springYUp->getMassA()->setIsFixed(true);
 	springs->push_back(springYUp);
 	springPrev = springYUp;
 	float moveMassBY = -1.0f;
@@ -465,49 +496,63 @@ void createJelloCube(vector<Spring*> *springs)
 	for(int i = 0; i < numSpringsPerFace; i++)
 	{
 		
-		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, moveMassBY, 1.0f), false, false);
+		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, moveMassBY, 1.0f), false, false);
 		springNew->setMassA(springPrev->getMassB());
 		springs->push_back(springNew);
 		springPrev = springNew;
-		moveMassBY -= 2.0f; 
+		moveMassBY -= 1.0f; 
 	}
-
+	Spring *springBotLeft = springPrev;
 
 	/* Creating right column of the cube*/
 	
 	//Spring *springY = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(1.0f, -1.0f, 1.0f), false, false);
-	Spring *springY = new Spring(springRoot->getMassA()->getPosition(), vec3(1.0f, -1.0f, 1.0f), false, false);
+	Spring *springY = new Spring(springRoot->getMassA()->getPosition(), vec3(1.0f, 0.0f, 1.0f), false, false);
 	springY->setMassA(springRoot->getMassA());
+	//springY->getMassA()->setIsFixed(true);
 	springs->push_back(springY);
 	springPrev = springY;
 	moveMassBY = -1.0f;
 	for(int i = 0; i < numSpringsPerFace; i++)
 	{
-		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(1.0f, moveMassBY, 1.0f), false, false);
+		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(1.0f, moveMassBY, 1.0f), false, false);
 		springNew->setMassA(springPrev->getMassB());
 		springs->push_back(springNew);
 		springPrev = springNew;
-		moveMassBY -= 2.0f; 
+		moveMassBY -= 1.0f; 
 	}
-
+	
 	/* Creating the bottom row of the cube*/
-	float currSpotY = -3.0 - ((numSpringsPerFace-2) * 2.0f);
+	
+	float currSpotY = springPrev->getMassB()->getPosition().y;//-1.0 - ((numSpringsPerFace-2) * 2.0f);
 	//Spring *springXY = new Spring(vec3(1.0f, currSpotY, 1.0f), vec3(-1.0f, currSpotY, 1.0f), false, false);
-	Spring *springXY = new Spring(springPrev->getMassB()->getPosition(), vec3(-1.0f, currSpotY, 1.0f), false, false);
+	Spring *springXY = new Spring(springPrev->getMassB()->getPosition(), vec3(0.0f, currSpotY, 1.0f), false, false);
 	springXY->setMassA(springPrev->getMassB());
+	//springXY->getMassA()->setIsFixed(true);
 	springs->push_back(springXY);
 	springPrev = springXY;
 	float moveMassBXY = -1.0f;
 	//float y = springPrev->getMassB()->getPosition().y;
 	for(int i = 0; i < numSpringsPerFace; i++)
 	{
-		Spring *springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBXY, currSpotY, 1.0f), false, false);
+		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBXY, currSpotY, 1.0f), false, false);
 		springNew->setMassA(springPrev->getMassB());
+		if(i+1 == numSpringsPerFace)
+		{
+			springNew->setMassB(springBotLeft->getMassB());
+		}
+			
 		springs->push_back(springNew);
 		springPrev = springNew;
-		moveMassBXY -= 2.0f; 
+		moveMassBXY -= 1.0f; 
 	}
-	
+	/*
+	Spring *springFinish = new Spring (springPrev->getMassB()->getPosition() , springBotLeft->getMassB()->getPosition(), false, false);
+	springFinish->setMassA(springPrev->getMassB());
+	springFinish->setMassB(springBotLeft->getMassB());
+	//springFinish->getMassB()->setIsFixed(true);
+	springs->push_back(springFinish);
+	*/
 }
 
 void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
@@ -578,15 +623,15 @@ int main(int argc, char *argv[])
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
 
 	//Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
-	
-	bool springChain = true;
 	int numSprings = 6;
+/*
+	
 	if(springChain)
 		createSpringChain(&multipleSprings, numSprings);
 	else
 		createCube(&multipleSprings);
 		//createJelloCube(&multipleSprings);
-	
+	*/
 	float dt = 0.01f;
 	float time = 0.0f;
 
@@ -615,8 +660,49 @@ int main(int argc, char *argv[])
 
     while (!glfwWindowShouldClose(window))
     {
+		if(!initSpringSys)
+		{
+			multipleSprings.clear();
+				
+			switch(scene)
+			{
+				case 0:
+					createSpringChain(&multipleSprings, 1);
+				break;
+				
+				case 1:
+					createSpringChain(&multipleSprings, numSprings);
+				break;
+				
+				case 2:
+					createCube(&multipleSprings);
+					//createJelloCube(&multipleSprings);
+				break;
+				
+				default:
+				break;
+				
+			}
+			/*
+			if(springChain)
+			{
+				multipleSprings.clear();
+				createSpringChain(&multipleSprings, numSprings);
+			
+			}
+			else
+			{
+				multipleSprings.clear();
+				createCube(&multipleSprings);
+				
+			}
+			* */
+			initSpringSys = true;
+		}
+		//createJelloCube(&multipleSprings);
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.009f;
+		dt = 0.004f;
 		dt += extraTime;
 		for(int i = 0; i < multipleSprings.size(); i++)
 		{
@@ -639,6 +725,10 @@ int main(int argc, char *argv[])
 							multipleSprings[j]->applyForce(force, dt);
 							setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[j]);
 						}
+						/*Add the forces being appleied to the masses here*/
+						/*Apply gravity to each individual mass once then resolve forces*/
+						
+						/*------------------------------------------------*/
 						for(int i = 0; i < multipleSprings.size(); i++)
 						{
 							multipleSprings[i]->unCalced(); //prevents the springs resets whether the springs have been calculated once or not
