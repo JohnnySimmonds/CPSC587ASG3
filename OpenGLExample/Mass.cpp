@@ -37,7 +37,7 @@ void Mass::resolveForces(float dt)
 	{
 		vec3 accel = (force/mass);
 		vel = velocity + (accel * dt);
-
+		
 		newPos = pos + (vel * dt);
 		if(isCube)
 		{
@@ -81,7 +81,7 @@ void Mass::printVec3(vec3 toPrint)
 }
 void Mass::setIsMassA(bool isMA)
 {
-	isMassA = isMa;
+	isMassA = isMA;
 }
 void Mass::setIsFixed(bool isFix)
 {

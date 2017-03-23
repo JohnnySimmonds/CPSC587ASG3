@@ -2,7 +2,7 @@
 
 vec3 vA = vec3(0.0f, 0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f, 0.0f,0.0f); //velocity of b
-float kA = 5.0f; //stiffness of spring
+float kA = 30.0f; //stiffness of spring
 float mass =  0.5f; //mass
 #include <math.h>
 
@@ -87,54 +87,46 @@ void Spring::zeroForce()//Mass *mA, Mass *mB)
 	vec3 zero = vec3(0.0f,0.0f,0.0f);
 	massA->setForce(zero);
 	massB->setForce(zero);
+	
 	massA->setIsDrawn(false);
 	massB->setIsDrawn(false);
 }
 /*TODO*/
 void Spring::applyForce(float dt)
 {	
-	//f = f*dt;
-	//float test = glm::length((massB->getPosition()-massA->getPosition()));
+
 	
 	float bALen = glm::length((massB->getPosition()-massA->getPosition()));
-	if(bALen == 0.0f)
-		bALen = 0.001f;
+
 		
 		
 	vec3 bANorm = ((massB->getPosition()-massA->getPosition()) / bALen); //B-A normalized
-	vec3 aBNorm = ((massA->getPosition()-massB->getPosition()) / glm::length((massA->getPosition()-massB->getPosition()))); //B-A normalized
-	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
-	float rLA = (glm::length((massA->getPosition()-massB->getPosition())) - restLength);
-	float amp = 0.55f;
+
+	float rL = (bALen - restLength);
+
+	float amp = 0.05f;
 	float k = getStiffness();
 	vec3 forceA;
 	vec3 forceB;
 
 	dampingCo =  amp * exp(-dt) * cos(2.0f * 3.14159f * dt);
 
-	//forceA = (-k * rLA * aBNorm) - (dampingCo * (massA->getVelocity()));
-	
-	forceB = (-k * rL * bANorm) - (dampingCo * (massB->getVelocity()));
-
-
-	//zeroForce(massA,massB);
-
-	//forceB = forceB;// + (f);//*massB->getMass());
-	
 
 	
-	//forceA = forceA;// + (f);//*massA->getMass());
+	forceB = (-k * rL * bANorm);
+	forceA = -forceB;
+	vec3 dampB = (dampingCo * (massB->getVelocity()/massB->getMass()));
+	vec3 dampA = (dampingCo * (massA->getVelocity()/massA->getMass()));
+
+
+	forceA -= dampA;
+	forceB -= dampB;
 
 	
-	//massA->setForce(massA->getForce() + forceB);
-	//massB->setForce(massB->getForce() + forceB);
-
-	massA->setForce(massA->getForce() + -forceB);
+	massA->setForce(massA->getForce() + forceA);
 
 	massB->setForce(massB->getForce() + forceB);
-	
-	//massB->resolveForces(dt);
-	//massA->resolveForces(dt);
+
 }
 
 void Spring::unCalced()

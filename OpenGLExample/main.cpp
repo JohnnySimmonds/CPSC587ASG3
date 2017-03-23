@@ -594,7 +594,7 @@ vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColo
 //	}
 }
 
-/*
+
 void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spring*> *springs, vector<Mass*> *masses)
 {
 	//vector<Mass*> masses;
@@ -605,18 +605,18 @@ void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spri
 		masses->push_back(massNew);
 	}
 	int ind1, ind2;
-	for(unsigned int i = 0; i < indices.size()-1; i++)
+	for(unsigned int i = 0; i < indices.size(); i+=2)
 	{
 		ind1 = indices[i];
 		ind2 = indices[i+1];
 		
-		Spring* springNew = new Spring(masses->at(ind1),masses->at(ind2), false, false);
-		//springNew->setMassA(masses->at(ind1));
-		//springNew->setMassB(masses->at(ind2));
+		Spring* springNew = new Spring(box[ind1], box[ind2], false, false);
+		springNew->setMassA(masses->at(ind1));
+		springNew->setMassB(masses->at(ind2));
 		springs->push_back(springNew);
 	}
 }
-* */
+
 void createClothSprings(vector<vec3> cloth, vector<unsigned int> inds, vector<Spring*> *springs, vector<Mass*> *masses)
 {
 	
@@ -729,9 +729,6 @@ void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *i
 	indices->push_back(3);
 	indices->push_back(5);
 	
-	//indices->push_back(3);
-	//indices->push_back(6);
-	
 	indices->push_back(3);
 	indices->push_back(4);
 	
@@ -811,20 +808,12 @@ int main(int argc, char *argv[])
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
 
-	//Spring spring = Spring(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, -5.0f, 0.0f));
 	int numSprings = 6;
-/*
-	
-	if(springChain)
-		createSpringChain(&multipleSprings, numSprings);
-	else
-		createCube(&multipleSprings);
-		//createJelloCube(&multipleSprings);
-	*/
+
 	float dt = 0.01f;
 	float time = 0.0f;
 
-	vec3 gravity = vec3(0.0f, -9.81f, 0.0f);
+	vec3 gravity = vec3(0.0f, -2.81f, 0.0f);
     vec3 force;
     mat4 moveObj;
     
@@ -894,15 +883,16 @@ int main(int argc, char *argv[])
 				case 2:
 				{
 					createBox(&box, &boxColor, &boxInds);
-					createCube(&multipleSprings);
+					createSpringBox(box, boxInds, &multipleSprings, &massObjs);
+				//	createCube(&multipleSprings);
 					for(int i = 0; i < multipleSprings.size(); i++)
 					{
 						multipleSprings[i]->getMassA()->setIsCube(true);
 						multipleSprings[i]->getMassB()->setIsCube(true);
 					}
-					//createSpringBox(box, boxInds, &multipleSprings, &massObjs);
+				//	createSpringBox(box, boxInds, &multipleSprings, &massObjs);
 				}
-				//	createCube(&multipleSprings);
+					//createCube(&multipleSprings);
 					//createJelloCube(&multipleSprings);
 				
 				break;
@@ -917,20 +907,7 @@ int main(int argc, char *argv[])
 				break;
 				
 			}
-			/*
-			if(springChain)
-			{
-				multipleSprings.clear();
-				createSpringChain(&multipleSprings, numSprings);
-			
-			}
-			else
-			{
-				multipleSprings.clear();
-				createCube(&multipleSprings);
-				
-			}
-			* */
+
 			initSpringSys = true;
 			for(int i = 0; i < multipleSprings.size(); i++)
 			{
@@ -968,11 +945,12 @@ int main(int argc, char *argv[])
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
 							multipleSprings[i]->zeroForce();
+							printVec3(multipleSprings[i]->getMassA()->getForce());
+							printVec3(multipleSprings[i]->getMassB()->getForce());
 						}
 						for(int j = 0; j < multipleSprings.size(); j++)
 						{
 							multipleSprings[j]->applyForce(dt);
-							//setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[j]);
 						}
 						for(int k = 0; k < multipleSprings.size(); k++)
 						{
@@ -991,18 +969,15 @@ int main(int argc, char *argv[])
 							}
 								
 						}
-					//	cout << multipleSprings.size() << endl;
+
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
-							//printVec3(multipleSprings[i]->getMassB()->getForce());
-							//printVec3(multipleSprings[i]->getMassA()->getForce());
+
 							multipleSprings[i]->getMassA()->setPosition(multipleSprings[i]->getMassA()->getNewPos());
 							multipleSprings[i]->getMassB()->setPosition(multipleSprings[i]->getMassB()->getNewPos());
 							multipleSprings[i]->getMassA()->setNewVel();
 							multipleSprings[i]->getMassB()->setNewVel();
-					
-							
-							//cout << masses.size() << endl;
+
 							multipleSprings[i]->unCalced(); 
 						}
 					
