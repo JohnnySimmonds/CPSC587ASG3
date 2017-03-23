@@ -386,7 +386,7 @@ void printVec3(vec3 toPrint)
 	cout << "Z: " << toPrint.z << endl;
 }
 
-/*
+
 void createSpringChain(vector<Spring*> *springs, int numSprings)
 {
 
@@ -430,7 +430,7 @@ vertices->push_back(vec3(1.0f, 1.0f, -1.f)); //6
 vertices->push_back(vec3(1.0f, -1.0f, -1.f)); //7
  * */
  
- /*
+ 
 void createCube(vector<Spring*> *springs)
 {
 	//Spring *springRoot = new Spring(vec3(-1.0f,1.0f,1.0f), vec3(-1.0f,-1.0f,1.0f), false,false);
@@ -460,7 +460,7 @@ void createCube(vector<Spring*> *springs)
 	springs->push_back(springCross2);
 	
 } 
- /*
+
 void createJelloCube(vector<Spring*> *springs)
 {
 	
@@ -468,7 +468,7 @@ void createJelloCube(vector<Spring*> *springs)
 	Spring *springNew;
 
 	/*Creating the Top row of the cube*/
-/*
+
 	Spring *springRoot = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f), false, false);
 	springs->push_back(springRoot);
 	Spring *springPrev = springRoot;
@@ -485,7 +485,7 @@ void createJelloCube(vector<Spring*> *springs)
 
 	/* Create Left column*/
 	
-/*
+
 	float currSpotX = springPrev->getMassB()->getPosition().x;
 	//Spring *springYUp = new Spring(vec3(currSpotX, currSpotY, 1.0f), vec3(currSpotX, currSpotY+2.0f, 1.0f), false, false);
 	Spring *springYUp = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, 0.0f, 1.0f), false, false);
@@ -507,7 +507,7 @@ void createJelloCube(vector<Spring*> *springs)
 	Spring *springBotLeft = springPrev;
 
 	/* Creating right column of the cube*/
-/*
+
 	//Spring *springY = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(1.0f, -1.0f, 1.0f), false, false);
 	Spring *springY = new Spring(springRoot->getMassA()->getPosition(), vec3(1.0f, 0.0f, 1.0f), false, false);
 	springY->setMassA(springRoot->getMassA());
@@ -525,7 +525,7 @@ void createJelloCube(vector<Spring*> *springs)
 	}
 	
 	/* Creating the bottom row of the cube*/
-/*
+
 	float currSpotY = springPrev->getMassB()->getPosition().y;//-1.0 - ((numSpringsPerFace-2) * 2.0f);
 	//Spring *springXY = new Spring(vec3(1.0f, currSpotY, 1.0f), vec3(-1.0f, currSpotY, 1.0f), false, false);
 	Spring *springXY = new Spring(springPrev->getMassB()->getPosition(), vec3(0.0f, currSpotY, 1.0f), false, false);
@@ -554,15 +554,15 @@ void createJelloCube(vector<Spring*> *springs)
 	springFinish->setMassB(springBotLeft->getMassB());
 	//springFinish->getMassB()->setIsFixed(true);
 	springs->push_back(springFinish);
-	
+	*/
 }
-*/
+
 void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
 vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, Spring *springOne)
 {
 
-	if(!springOne->getMassA()->isDrawn())
-	{
+	//if(!springOne->getMassA()->isDrawn())
+	//{
 		
 		spring->push_back(springOne->getMassA()->getPosition());
 		springsInd->push_back(springsInd->size());
@@ -577,9 +577,9 @@ vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColo
 		springOne->getMassA()->setIsDrawn(true);
 
 	
-	}
-	if(!springOne->getMassB()->isDrawn())
-	{
+	//}
+//	if(!springOne->getMassB()->isDrawn())
+	//{
 		spring->push_back(springOne->getMassB()->getPosition());
 		springsInd->push_back(springsInd->size());
 		springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
@@ -589,8 +589,10 @@ vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColo
 		massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
 		
 		springOne->getMassB()->setIsDrawn(true);
-	}
+//	}
 }
+
+/*
 void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spring*> *springs, vector<Mass*> *masses)
 {
 	//vector<Mass*> masses;
@@ -612,6 +614,8 @@ void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spri
 		springs->push_back(springNew);
 	}
 }
+* */
+
 void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *indices)
 {
 	box->push_back(vec3(1.0f, 1.0f, 1.f)); //0
@@ -815,17 +819,23 @@ int main(int argc, char *argv[])
 			switch(scene)
 			{
 				case 0:
-					//createSpringChain(&multipleSprings, 1);
+					createSpringChain(&multipleSprings, 1);
 				break;
 				
 				case 1:
-					//createSpringChain(&multipleSprings, numSprings);
+					createSpringChain(&multipleSprings, numSprings);
 				break;
 				
 				case 2:
 				{
 					createBox(&box, &boxColor, &boxInds);
-					createSpringBox(box, boxInds, &multipleSprings, &massObjs);
+					createCube(&multipleSprings);
+					for(int i = 0; i < multipleSprings.size(); i++)
+					{
+						multipleSprings[i]->getMassA()->setIsCube(true);
+						multipleSprings[i]->getMassB()->setIsCube(true);
+					}
+					//createSpringBox(box, boxInds, &multipleSprings, &massObjs);
 				}
 				//	createCube(&multipleSprings);
 					//createJelloCube(&multipleSprings);
@@ -939,7 +949,7 @@ int main(int argc, char *argv[])
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-			renderPoints(vao, 0, massInd.size(), program, vbo, masses, boxColor, massInd);
+			renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
 			
 			//loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			//renderLine(vao, 0, boxInds.size(), program, vbo, box, boxColor, boxInds);

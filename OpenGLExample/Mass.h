@@ -31,6 +31,9 @@ public:
 	bool isDrawn();
 	void setIsDrawn(bool isDrawn);
 	vec3 getNewPos();
+	void setNewPos(vec3 posNew);
+	void setIsCube(bool cube);
+	
 private:
 	bool drawn = false;
 	bool calced = false;
@@ -41,7 +44,7 @@ private:
 	vec3 velocity;
 	vec3 force;
 	vec3 fixedPoint;
-	
+	bool isCube = false;
 	bool isFixed;
 
 };

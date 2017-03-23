@@ -22,6 +22,14 @@ vec3 Mass::getNewPos()
 {
 	return newPos;
 }
+void Mass::setNewPos(vec3 posNew)
+{
+	newPos = posNew;
+}
+void Mass::setIsCube(bool cube)
+{
+	isCube = cube;
+}
 void Mass::resolveForces(float dt)
 {
 
@@ -35,11 +43,13 @@ void Mass::resolveForces(float dt)
 		velocity = v;
 		
 		newPos = pos + (v * dt);
-		if(newPos.y < -10.0f)
+		if(isCube)
 		{
-			velocity *= -0.9f;
-			newPos.y = -10.0f;// * velocity;
-			
+			if(newPos.y < -10.0f)
+			{
+				velocity *= -0.9f;
+				newPos.y = -10.0f;// * velocity;				
+			}
 		}
 		//	pos.y = -10.0f;
 		calced = true;

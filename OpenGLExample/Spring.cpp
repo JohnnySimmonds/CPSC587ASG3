@@ -5,7 +5,7 @@ vec3 vB = vec3(0.0f, 0.0f,0.0f); //velocity of b
 float kA = 5.0f; //stiffness of spring
 float mass =  0.5f; //mass
 #include <math.h>
-/*
+
 Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 {
 	
@@ -14,6 +14,10 @@ Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 	
 	massA->setPosition(massAPos);
 	massB->setPosition(massBPos);
+	
+	massA->setNewPos(massAPos);
+	massB->setNewPos(massBPos);
+	
 	
 	massA->setFixedPoint(massAPos);
 	massB->setFixedPoint(massBPos);
@@ -33,7 +37,8 @@ Spring::Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB)
 	dampingCo = 5.0f;
 	
 }
-*/
+
+/*
 Spring::Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB)
 {
 	
@@ -55,6 +60,7 @@ Spring::Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB)
 	massA->setVelocity(vA);
 	massB->setVelocity(vB);
 	*/
+/*
 	massA->setIsFixed(setFixedA);
 	massB->setIsFixed(setFixedB);
 	/*
@@ -62,6 +68,7 @@ Spring::Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB)
 	restLengthB = glm::length(massBPos - massAPos);
 	restLengthA = glm::length(massAPos - massBPos);
 	*/
+/*
 	restLength = glm::length(massB->getPosition() - massA->getPosition());
 	
 	setStiffness(kA);
@@ -69,6 +76,7 @@ Spring::Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB)
 	
 	
 }
+*/
 Spring::~Spring()
 {
 	delete massA;

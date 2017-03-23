@@ -7,8 +7,8 @@ class Spring
 	
 public:
 
-	//Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB);
-	Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB);
+	Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB);
+	//Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB);
 	~Spring();
 	
 	void applyForce(vec3 f, float dt);
