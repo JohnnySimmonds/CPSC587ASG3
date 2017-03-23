@@ -47,7 +47,7 @@ bool leftmousePressed = false;
 bool rightmousePressed = false;
 bool play = false;
 bool springChain = false;
-int scene = 2;
+int scene = 0;
 bool initSpringSys = false;
 Camera* activeCamera;
 
@@ -82,7 +82,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	{
 	
 		scene += 1;
-		if(scene == 3)
+		if(scene == 4)
 			scene = 0;
 			
 		if(!springChain)
@@ -461,6 +461,8 @@ void createCube(vector<Spring*> *springs)
 	
 } 
 
+
+
 void createJelloCube(vector<Spring*> *springs)
 {
 	
@@ -615,6 +617,58 @@ void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spri
 	}
 }
 * */
+void createClothSprings(vector<vec3> cloth, vector<unsigned int> inds, vector<Spring*> *springs, vector<Mass*> *masses)
+{
+	
+	for(int i = 0; i < cloth.size(); i++)
+	{
+		Mass *massNew = new Mass();
+		massNew->setPosition(cloth[i]);
+		massNew->setNewPos(cloth[i]);
+		if(i == 0 || i == 2)
+			massNew->setIsFixed(true);
+		masses->push_back(massNew);
+	}
+	int ind1, ind2;
+	for(unsigned int i = 0; i < inds.size(); i+=2)
+	{
+		ind1 = inds[i];
+		ind2 = inds[i+1];
+		
+		Spring* springNew = new Spring(cloth[ind1],cloth[ind2], false, false);
+		springNew->setMassA(masses->at(ind1));
+		springNew->setMassB(masses->at(ind2));
+		//springNew->getMassA()->setIsFixed(true);
+		springs->push_back(springNew);
+	}
+	
+}
+void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int> *indices)
+{
+	cloth->push_back(vec3(1.0f,1.0f,1.0f));
+	cloth->push_back(vec3(1.0f,-1.0f,1.0f));
+	cloth->push_back(vec3(-1.0f,1.0f,1.0f));
+	cloth->push_back(vec3(-1.0f,-1.0f,1.0f));
+	
+	
+	
+	indices->push_back(0);
+	indices->push_back(1);
+	
+	indices->push_back(0);
+	indices->push_back(2);
+	
+	indices->push_back(1);
+	indices->push_back(3);
+	
+	indices->push_back(2);
+	indices->push_back(3);
+	
+	normals->push_back(vec3(1.0f,1.0f,1.0f));
+	normals->push_back(vec3(1.0f,1.0f,1.0f));
+	normals->push_back(vec3(1.0f,1.0f,1.0f));
+	normals->push_back(vec3(1.0f,1.0f,1.0f));
+}
 
 void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *indices)
 {
@@ -713,6 +767,7 @@ void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *i
 	normals->push_back(vec3(0.5f, 0.5f, 0.5f));
 	normals->push_back(vec3(0.0f, 0.0f, 0.f));
 }
+
 int main(int argc, char *argv[])
 {   
     window = createGLFWWindow();
@@ -790,6 +845,10 @@ int main(int argc, char *argv[])
     vector<vec3> box;
     vector<vec3> boxColor;
     vector<unsigned int> boxInds;
+
+    vector<vec3> cloth;
+    vector<vec3> clothColor;
+    vector<unsigned int> clothInds;
     
     vector<Mass*> massObjs;
     float minHeight = -20.0f;
@@ -804,8 +863,8 @@ int main(int argc, char *argv[])
 			masses.clear();
 			massInd.clear();
 			colorMass.clear();
-
-			
+	
+				
 			springs.clear();
 			springInd.clear();
 			colorSpring.clear();
@@ -814,8 +873,13 @@ int main(int argc, char *argv[])
 			massFixed.clear();
 			massFixedInd.clear();
 			colorMassFixed.clear();
-			multipleSprings.clear();
-				
+			
+			multipleSprings.clear();	
+			massObjs.clear();	
+			
+			cloth.clear();
+			clothInds.clear();
+			
 			switch(scene)
 			{
 				case 0:
@@ -840,6 +904,12 @@ int main(int argc, char *argv[])
 				//	createCube(&multipleSprings);
 					//createJelloCube(&multipleSprings);
 				
+				break;
+				case 3:
+				{
+					createCloth(&cloth, &clothColor, &clothInds);
+					createClothSprings(cloth, clothInds, &multipleSprings, &massObjs);
+				}
 				break;
 				
 				default:
@@ -945,14 +1015,15 @@ int main(int argc, char *argv[])
 					}
 			}
 					
+		//	cout << "Spring Inds Size: " << springInd.size() << endl;		
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
 			
-			//loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-			//renderLine(vao, 0, boxInds.size(), program, vbo, box, boxColor, boxInds);
+		//	loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+		//	renderLine(vao, 0, clothInds.size(), program, vbo, cloth, clothColor, clothInds);
 			
 			//glfwSwapInterval(1);
 			glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display

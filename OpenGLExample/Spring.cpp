@@ -103,7 +103,7 @@ void Spring::applyForce(vec3 f, float dt)
 	vec3 aBNorm = ((massA->getPosition()-massB->getPosition()) / glm::length((massA->getPosition()-massB->getPosition()))); //B-A normalized
 	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
 	float rLA = (glm::length((massA->getPosition()-massB->getPosition())) - restLength);
-	float amp = 0.95f;
+	float amp = 0.55f;
 	float k = getStiffness();
 	vec3 forceA;
 	vec3 forceB;
