@@ -860,6 +860,7 @@ int main(int argc, char *argv[])
     {
 		if(!initSpringSys)
 		{
+			play = false;
 			masses.clear();
 			massInd.clear();
 			colorMass.clear();
@@ -940,7 +941,7 @@ int main(int argc, char *argv[])
 		//createJelloCube(&multipleSprings);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
-		dt = 0.003f;
+		dt = 0.004f;
 		dt += extraTime;
 	
 		if(play)
@@ -963,14 +964,14 @@ int main(int argc, char *argv[])
 						massFixedInd.clear();
 						colorMassFixed.clear();
 						
-						force = gravity;
+						//force = gravity;
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
 							multipleSprings[i]->zeroForce();
 						}
 						for(int j = 0; j < multipleSprings.size(); j++)
 						{
-							multipleSprings[j]->applyForce(force, dt);
+							multipleSprings[j]->applyForce(dt);
 							//setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[j]);
 						}
 						for(int k = 0; k < multipleSprings.size(); k++)
@@ -980,13 +981,13 @@ int main(int argc, char *argv[])
 							{
 								multipleSprings[k]->getMassA()->setForce((multipleSprings[k]->getMassA()->getForce() + gravity*multipleSprings[k]->getMassA()->getMass()));
 								multipleSprings[k]->getMassA()->resolveForces(dt);
-								//multipleSprings[k]->getMassA()->setCalced(true);	
+								multipleSprings[k]->getMassA()->setCalced(true);	
 							}
 							if(!multipleSprings[k]->getMassB()->getCalced())
 							{
 								multipleSprings[k]->getMassB()->setForce((multipleSprings[k]->getMassB()->getForce() + gravity*multipleSprings[k]->getMassB()->getMass()));
 								multipleSprings[k]->getMassB()->resolveForces(dt);
-								//multipleSprings[k]->getMassB()->setCalced(true);
+								multipleSprings[k]->getMassB()->setCalced(true);
 							}
 								
 						}
@@ -997,8 +998,10 @@ int main(int argc, char *argv[])
 							//printVec3(multipleSprings[i]->getMassA()->getForce());
 							multipleSprings[i]->getMassA()->setPosition(multipleSprings[i]->getMassA()->getNewPos());
 							multipleSprings[i]->getMassB()->setPosition(multipleSprings[i]->getMassB()->getNewPos());
+							multipleSprings[i]->getMassA()->setNewVel();
+							multipleSprings[i]->getMassB()->setNewVel();
+					
 							
-							setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[i]);
 							//cout << masses.size() << endl;
 							multipleSprings[i]->unCalced(); 
 						}
@@ -1014,7 +1017,11 @@ int main(int argc, char *argv[])
 					
 					}
 			}
-					
+			for(int i = 0; i < multipleSprings.size(); i++)
+			{
+				setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[i]);
+			}
+		
 		//	cout << "Spring Inds Size: " << springInd.size() << endl;		
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 

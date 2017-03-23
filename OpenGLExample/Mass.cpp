@@ -35,26 +35,26 @@ void Mass::resolveForces(float dt)
 
 	if(!isFixed && !calced)
 	{
-		
-		
 		vec3 accel = (force/mass);
-		vec3 v = velocity + (accel * dt);
-		//printVec3(v);
-		velocity = v;
-		
-		newPos = pos + (v * dt);
+		vel = velocity + (accel * dt);
+
+		newPos = pos + (vel * dt);
 		if(isCube)
 		{
 			if(newPos.y < -10.0f)
 			{
-				velocity *= -0.9f;
+				vel *= -0.9f;
 				newPos.y = -10.0f;// * velocity;				
 			}
 		}
-		//	pos.y = -10.0f;
+
 		calced = true;
 	}
-	//printVec3(pos);
+
+}
+void Mass::setNewVel()
+{
+	velocity = vel;
 }
 void Mass::setIsDrawn(bool isDrawn)
 {
@@ -78,6 +78,10 @@ void Mass::printVec3(vec3 toPrint)
 	cout << "X: " << toPrint.x << endl;
 	cout << "Y: " << toPrint.y << endl;
 	cout << "Z: " << toPrint.z << endl;
+}
+void Mass::setIsMassA(bool isMA)
+{
+	isMassA = isMa;
 }
 void Mass::setIsFixed(bool isFix)
 {

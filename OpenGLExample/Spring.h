@@ -11,7 +11,7 @@ public:
 	//Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB);
 	~Spring();
 	
-	void applyForce(vec3 f, float dt);
+	void applyForce(float dt);
 	Mass* getMassA();
 	Mass* getMassB();
 	void setMassA(Mass *mA);

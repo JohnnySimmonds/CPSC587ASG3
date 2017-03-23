@@ -33,6 +33,8 @@ public:
 	vec3 getNewPos();
 	void setNewPos(vec3 posNew);
 	void setIsCube(bool cube);
+	void setNewVel();
+	void setIsMassA(bool isMA);
 	
 private:
 	bool drawn = false;
@@ -42,9 +44,11 @@ private:
 	vec3 pos;
 	vec3 prevPos;
 	vec3 velocity;
+	vec3 vel = vec3(0.0f, 0.0f, 0.0f);
 	vec3 force;
 	vec3 fixedPoint;
 	bool isCube = false;
 	bool isFixed;
+	bool isMassA = false;
 
 };

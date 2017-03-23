@@ -91,7 +91,7 @@ void Spring::zeroForce()//Mass *mA, Mass *mB)
 	massB->setIsDrawn(false);
 }
 /*TODO*/
-void Spring::applyForce(vec3 f, float dt)
+void Spring::applyForce(float dt)
 {	
 	//f = f*dt;
 	//float test = glm::length((massB->getPosition()-massA->getPosition()));
@@ -99,6 +99,8 @@ void Spring::applyForce(vec3 f, float dt)
 	float bALen = glm::length((massB->getPosition()-massA->getPosition()));
 	if(bALen == 0.0f)
 		bALen = 0.001f;
+		
+		
 	vec3 bANorm = ((massB->getPosition()-massA->getPosition()) / bALen); //B-A normalized
 	vec3 aBNorm = ((massA->getPosition()-massB->getPosition()) / glm::length((massA->getPosition()-massB->getPosition()))); //B-A normalized
 	float rL = (glm::length((massB->getPosition()-massA->getPosition())) - restLength);
@@ -117,17 +119,18 @@ void Spring::applyForce(vec3 f, float dt)
 
 	//zeroForce(massA,massB);
 
-	forceB = forceB;// + (f);//*massB->getMass());
+	//forceB = forceB;// + (f);//*massB->getMass());
 	
 
 	
-	forceA = forceA;// + (f);//*massA->getMass());
+	//forceA = forceA;// + (f);//*massA->getMass());
 
 	
 	//massA->setForce(massA->getForce() + forceB);
 	//massB->setForce(massB->getForce() + forceB);
-	
+
 	massA->setForce(massA->getForce() + -forceB);
+
 	massB->setForce(massB->getForce() + forceB);
 	
 	//massB->resolveForces(dt);
