@@ -27,14 +27,21 @@ public:
 	bool getIsFixed();
 	void printVec3(vec3 toPrint);
 	void setCalced(bool isCalced);
+	bool getCalced();
+	bool isDrawn();
+	void setIsDrawn(bool isDrawn);
+	vec3 getNewPos();
 private:
+	bool drawn = false;
 	bool calced = false;
 	float mass;
+	vec3 newPos;
 	vec3 pos;
 	vec3 prevPos;
 	vec3 velocity;
 	vec3 force;
 	vec3 fixedPoint;
+	
 	bool isFixed;
 
 };

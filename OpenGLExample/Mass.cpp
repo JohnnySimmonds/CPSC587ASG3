@@ -2,41 +2,43 @@
 
 
 #include <iostream>
+
+
 using namespace std;
 
+float mA = 1.0f;
+vec3 v = vec3(0.0f,0.0f,0.0f);
 
 Mass::Mass()
 {
-	
+	setMass(mA);
+	setVelocity(v);
+	setIsFixed(false);
 }
 Mass::~Mass()
 {
 }
+vec3 Mass::getNewPos()
+{
+	return newPos;
+}
 void Mass::resolveForces(float dt)
 {
-	
-	
-	
+
 	if(!isFixed && !calced)
 	{
-		if(pos.y < -10.0f)
-		{
-			//force = vec3(0.0f,0.0f,0.0f);
-			//velocity = vec3(0.0f, 0.0f, 0.0f);
-			//v = velocity;
-			//isFixed = true;
-			
-		}
+		
+		
 		vec3 accel = (force/mass);
 		vec3 v = velocity + (accel * dt);
 		//printVec3(v);
 		velocity = v;
 		
-		pos = pos + (v * dt);
-		if(pos.y < -10.0f)
+		newPos = pos + (v * dt);
+		if(newPos.y < -10.0f)
 		{
 			velocity *= -0.9f;
-			pos.y = -10.0f;// * velocity;
+			newPos.y = -10.0f;// * velocity;
 			
 		}
 		//	pos.y = -10.0f;
@@ -44,9 +46,22 @@ void Mass::resolveForces(float dt)
 	}
 	//printVec3(pos);
 }
+void Mass::setIsDrawn(bool isDrawn)
+{
+	drawn = isDrawn;
+}
+bool Mass::isDrawn()
+{
+	return drawn;
+	
+}
 void Mass::setCalced(bool isCalced)
 {
 		calced = isCalced;
+}
+bool Mass::getCalced()
+{
+	return calced;
 }
 void Mass::printVec3(vec3 toPrint)
 {

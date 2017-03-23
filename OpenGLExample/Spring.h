@@ -7,7 +7,8 @@ class Spring
 	
 public:
 
-	Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB);
+	//Spring(vec3 massAPos, vec3 massBPos, bool setFixedA, bool setFixedB);
+	Spring(Mass *mA, Mass *mB, bool setFixedA, bool setFixedB);
 	~Spring();
 	
 	void applyForce(vec3 f, float dt);
@@ -22,7 +23,7 @@ public:
 	
 	void setDampingCo(float damp);
 	float getDampingCo();
-	void zeroForce(Mass *mA, Mass *mB);
+	void zeroForce();//Mass *mA, Mass *mB);
 	void printVec3(vec3 toPrint);
 	void unCalced();
 private:
