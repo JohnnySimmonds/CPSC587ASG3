@@ -2,7 +2,7 @@
 
 vec3 vA = vec3(0.0f, 0.0f,0.0f); //velocity of a
 vec3 vB = vec3(0.0f, 0.0f,0.0f); //velocity of b
-float kA = 30.0f; //stiffness of spring
+float kA = 10.0f; //stiffness of spring
 float mass =  0.5f; //mass
 #include <math.h>
 
@@ -98,7 +98,6 @@ void Spring::applyForce(float dt)
 	
 	float bALen = glm::length((massB->getPosition()-massA->getPosition()));
 
-		
 		
 	vec3 bANorm = ((massB->getPosition()-massA->getPosition()) / bALen); //B-A normalized
 

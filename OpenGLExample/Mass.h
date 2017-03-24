@@ -48,7 +48,7 @@ private:
 	vec3 force;
 	vec3 fixedPoint;
 	bool isCube = false;
-	bool isFixed;
+	bool isFixed = false;
 	bool isMassA = false;
 
 };

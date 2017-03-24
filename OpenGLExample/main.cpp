@@ -49,6 +49,13 @@ bool play = false;
 bool springChain = false;
 int scene = 0;
 bool initSpringSys = false;
+bool isCloth = false;
+
+bool isCube = false;
+float sizeOfCube = 4.0f;
+float sizeOfCloth = 20.0f;
+int numSprings = 6;
+
 Camera* activeCamera;
 
 GLFWwindow* window = 0;
@@ -277,7 +284,7 @@ void renderLine(GLuint vao, int startElement, int numElements, GLuint program, V
 	loadBuffer(vbo, points, normals, indices);
 	
 	glEnable(GL_LINE_SMOOTH);
-	glLineWidth(2.0f);
+	glLineWidth(1.25f);
 	
 	glDrawElements(
 			GL_LINES,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
@@ -303,7 +310,7 @@ void renderPoints(GLuint vao, int startElement, int numElements, GLuint program,
 	loadBuffer(vbo, points, normals, indices);
 	
 	//glEnable(GL_LINE_SMOOTH);
-	glPointSize(10.0f);
+	glPointSize(5.0f);
 	
 	glDrawElements(
 			GL_POINTS,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
@@ -319,7 +326,32 @@ void renderPoints(GLuint vao, int startElement, int numElements, GLuint program,
 
 
 }
+void renderPlane(GLuint vao, int startElement, int numElements, GLuint program, VertexBuffers vbo, vector<vec3> points, vector<vec3>normals, vector<unsigned int> indices)
+{
+	
+	
+	glBindVertexArray(vao);		//Use the LINES vertex array
+	glUseProgram(program);
+	
+	loadBuffer(vbo, points, normals, indices);
+	
+	//glEnable(GL_LINE_SMOOTH);
+	//glPointSize(10.0f);
+	
+	glDrawElements(
+			GL_TRIANGLES,		//What shape we're drawing	- GL_TRIANGLES, GL_LINES, GL_POINTS, GL_QUADS, GL_TRIANGLE_STRIP
+			numElements,		//How many indices
+			GL_UNSIGNED_INT,	//Type
+			(void*)0			//Offset
+			);
+	//glDisable(GL_LINE_SMOOTH);
+ 
+	CheckGLErrors("render");
+	glUseProgram(0);
+	glBindVertexArray(0);
 
+
+}
 
 void generateSquare(vector<vec3>* vertices, vector<vec3>* normals, 
 					vector<unsigned int>* indices, float width)
@@ -418,18 +450,6 @@ void createSpringChain(vector<Spring*> *springs, int numSprings)
 	}
 
 }
-
-/*
- * vertices->push_back(vec3(1.0f, 1.0f, 1.f)); //0
-vertices->push_back(vec3(1.0f, -1.0f, 1.f)); //1
-vertices->push_back(vec3(-1.0f, -1.0f, 1.f)); //2
-vertices->push_back(vec3(-1.0f, 1.0f, 1.f)); //3
-vertices->push_back(vec3(-1.0f, -1.0f, -1.f)); //4
-vertices->push_back(vec3(-1.0f, 1.0f, -1.f)); //5
-vertices->push_back(vec3(1.0f, 1.0f, -1.f)); //6
-vertices->push_back(vec3(1.0f, -1.0f, -1.f)); //7
- * */
- 
  
 void createCube(vector<Spring*> *springs)
 {
@@ -462,42 +482,39 @@ void createCube(vector<Spring*> *springs)
 } 
 
 
-
-
-
 void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
 vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, Spring *springOne)
 {
-
-	//if(!springOne->getMassA()->isDrawn())
-	//{
+		vec3 posA = springOne->getMassB()->getPosition();
 		
 		spring->push_back(springOne->getMassA()->getPosition());
 		springsInd->push_back(springsInd->size());
-		springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
+		springColor->push_back(vec3(posA.x/sizeOfCube,posA.y/sizeOfCube,posA.z/sizeOfCube));
+
+
 
 		mass->push_back(springOne->getMassA()->getPosition());
 		massInds->push_back(massInds->size());
-		massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
+		massColor->push_back(vec3(posA.x/sizeOfCube,posA.y/sizeOfCube,posA.z/sizeOfCube));
 		
 		
 		
 		springOne->getMassA()->setIsDrawn(true);
 
-	
-	//}
-//	if(!springOne->getMassB()->isDrawn())
-	//{
+		vec3 posB = springOne->getMassB()->getPosition();
 		spring->push_back(springOne->getMassB()->getPosition());
 		springsInd->push_back(springsInd->size());
-		springColor->push_back(vec3(0.0f, 1.0f, 1.0f));
+
+		springColor->push_back(vec3(posB.x/sizeOfCube,posB.y/sizeOfCube,posB.z/sizeOfCube));
+		
+		
 		
 		mass->push_back(springOne->getMassB()->getPosition());
 		massInds->push_back(massInds->size());
-		massColor->push_back(vec3(1.0f, 1.0f, 1.0f));
-		
+
+		massColor->push_back(vec3(posB.x/sizeOfCube,posB.y/sizeOfCube,posB.z/sizeOfCube));
 		springOne->getMassB()->setIsDrawn(true);
-//	}
+
 }
 
 
@@ -523,58 +540,86 @@ void createSpringBox(vector<vec3> box, vector<unsigned int> indices, vector<Spri
 	}
 }
 
-void createClothSprings(vector<vec3> cloth, vector<unsigned int> inds, vector<Spring*> *springs, vector<Mass*> *masses)
+bool isInBoundsCloth(vec3 pos, float sizeOfCloth)
 {
-	
-	for(int i = 0; i < cloth.size(); i++)
+	if(pos.y >= 0 && pos.y < sizeOfCloth)
+		if(pos.x >= 0 && pos.x < sizeOfCloth)
+			return true;
+				
+	return false;
+}
+void createClothSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 pos, float sizeOfCloth, vector<unsigned int> *indices, vector<Mass*> *massObj, float z)
+{
+	vec3 newBPos;
+	unsigned int ind1, ind2;
+
+	for(float y = -1; y <= 1.0f; y++)
+	{
+		for(float x = -1; x <= 1.0f; x++)
+		{
+			if(x==0 && y == 0)
+			{
+				continue;
+			}
+			if(isInBoundsCloth(pos+vec3(x,y,z), sizeOfCloth))
+			{
+				newBPos = pos+vec3(x,y,0.0f);
+				ind1 = (unsigned int)(pos.x+(pos.y*sizeOfCloth));
+				ind2 = (unsigned int)(newBPos.x+(newBPos.y*sizeOfCloth));
+				Spring* springNew = new Spring(pos, newBPos, false, false);
+		
+				springNew->setMassA(massObj->at(ind1));
+				springNew->setMassB(massObj->at(ind2));
+				springNew->getMassA()->setPosition(pos);
+				springNew->getMassB()->setPosition(newBPos);
+
+				springs->push_back(springNew);
+				
+				
+				indices->push_back(ind1);
+				indices->push_back(ind2);
+
+			}
+		}
+				
+	}
+}
+void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int> *indices, float sizeOfCloth, vector<Spring*> *springs, vector<Mass*> *masses)
+{
+	for(int i = 0; i < sizeOfCloth*sizeOfCloth; i++)
 	{
 		Mass *massNew = new Mass();
-		massNew->setPosition(cloth[i]);
-		massNew->setNewPos(cloth[i]);
-		if(i == 0 || i == 2)
-			massNew->setIsFixed(true);
 		masses->push_back(massNew);
 	}
-	int ind1, ind2;
-	for(unsigned int i = 0; i < inds.size(); i+=2)
+	
+	float z = 0.0f;
+	
+	unsigned int currInd;
+
+	float scale = 1.0f;
+
+	for(float y = 0; y < sizeOfCloth; y++)
 	{
-		ind1 = inds[i];
-		ind2 = inds[i+1];
+		for(float x = 0; x < sizeOfCloth; x++)
+		{
+			currInd = (unsigned int)(x+(y*sizeOfCloth));
+			cloth->push_back(vec3(x*scale,y*scale,z*scale));
+			normals->push_back(vec3(x/sizeOfCloth,y/sizeOfCloth,z/sizeOfCloth));
+			indices->push_back(currInd);
+			cout << "Cloth inds: " << currInd << endl;
+			printVec3(vec3(x*scale,y*scale,z*scale));
+			createClothSprings(springs, cloth, vec3(x,y,z), sizeOfCloth, indices, masses, z);
+		}
 		
-		Spring* springNew = new Spring(cloth[ind1],cloth[ind2], false, false);
-		springNew->setMassA(masses->at(ind1));
-		springNew->setMassB(masses->at(ind2));
-		//springNew->getMassA()->setIsFixed(true);
-		springs->push_back(springNew);
 	}
-	
+	for(int i = 0; i < springs->size(); i+=2)
+	{
+		if(springs->at(i)->getMassA()->getPosition().y == sizeOfCloth-1.0f)
+			springs->at(i)->getMassA()->setIsFixed(!springs->at(i)->getMassA()->getIsFixed());
+	}
+
 }
-void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int> *indices)
-{
-	cloth->push_back(vec3(1.0f,1.0f,1.0f));
-	cloth->push_back(vec3(1.0f,-1.0f,1.0f));
-	cloth->push_back(vec3(-1.0f,1.0f,1.0f));
-	cloth->push_back(vec3(-1.0f,-1.0f,1.0f));
-	
-	
-	
-	indices->push_back(0);
-	indices->push_back(1);
-	
-	indices->push_back(0);
-	indices->push_back(2);
-	
-	indices->push_back(1);
-	indices->push_back(3);
-	
-	indices->push_back(2);
-	indices->push_back(3);
-	
-	normals->push_back(vec3(1.0f,1.0f,1.0f));
-	normals->push_back(vec3(1.0f,1.0f,1.0f));
-	normals->push_back(vec3(1.0f,1.0f,1.0f));
-	normals->push_back(vec3(1.0f,1.0f,1.0f));
-}
+
 
 void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned int> *indices, float sizeOfCube, vector<Spring*> *springs, vector<Mass*> *masses)
 {
@@ -609,6 +654,7 @@ void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned 
 	
 
 }
+
 bool isInBounds(vec3 pos, float sizeOfCube)
 {
 	if(pos.z >= 0 && pos.z < sizeOfCube)
@@ -618,11 +664,11 @@ bool isInBounds(vec3 pos, float sizeOfCube)
 				
 	return false;
 }
+
 void createJelloCubeSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 pos, float sizeOfCube, vector<unsigned int> *indices, vector<Mass*> *massObj)
 {
 	vec3 newBPos;
 	unsigned int ind1, ind2;
-	
 	
 	for(float z = -1; z <= 1.0f; z++)
 	{
@@ -632,7 +678,6 @@ void createJelloCubeSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 p
 			{
 				if(x==0 && y == 0 && z==0)
 				{
-						cout <<"WOOOOOOOOOOOOOOOOOOO" << endl;
 					continue;
 				}
 				if(isInBounds(pos+vec3(x,y,z), sizeOfCube))
@@ -641,18 +686,19 @@ void createJelloCubeSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 p
 					ind1 = (unsigned int)(pos.x+(pos.y*sizeOfCube)+(pos.z*sizeOfCube*sizeOfCube));
 					ind2 = (unsigned int)(newBPos.x+(newBPos.y*sizeOfCube)+(newBPos.z*sizeOfCube*sizeOfCube));
 					Spring* springNew = new Spring(pos, newBPos, false, false);
+			
 					springNew->setMassA(massObj->at(ind1));
 					springNew->setMassB(massObj->at(ind2));
 					springNew->getMassA()->setPosition(pos);
 					springNew->getMassB()->setPosition(newBPos);
 					
+
+					
 					springs->push_back(springNew);
 					
 					indices->push_back(ind1);
 					indices->push_back(ind2);
-					
-					//printVec3(pos+vec3(x,y,z));
-					//cout << endl;
+
 				}
 			}
 					
@@ -755,7 +801,27 @@ void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *i
 	normals->push_back(vec3(0.5f, 0.5f, 0.5f));
 	normals->push_back(vec3(0.0f, 0.0f, 0.f));
 }
-
+void createPlane(vector<vec3> *plane, vector<vec3> *planeColors, vector<unsigned int> *planeInds)
+{
+	plane->push_back(vec3(-10.0f, -10.0f, -10.0f));
+	plane->push_back(vec3(-10.0f, -10.0f, 10.0f));
+	plane->push_back(vec3(10.0f, -10.0f, -10.0f));
+	plane->push_back(vec3(10.0f, -10.0f, 10.0f));
+	
+	planeInds->push_back(3);
+	planeInds->push_back(0);
+	planeInds->push_back(2);
+	
+	planeInds->push_back(0);
+	planeInds->push_back(1);
+	planeInds->push_back(3);
+	
+	planeColors->push_back(vec3(1.0f, 1.0f, 1.0f));
+	planeColors->push_back(vec3(1.0f, 1.0f, 1.0f));
+	planeColors->push_back(vec3(1.0f, 1.0f, 1.0f));
+	planeColors->push_back(vec3(1.0f, 1.0f, 1.0f));
+	
+}
 int main(int argc, char *argv[])
 {   
     window = createGLFWWindow();
@@ -799,7 +865,7 @@ int main(int argc, char *argv[])
 	//float fovy, float aspect, float zNear, float zFar
 	mat4 perspectiveMatrix = perspective(radians(80.f), 1.f, 0.1f, 400.f);
 
-	int numSprings = 6;
+
 
 	float dt = 0.01f;
 	float time = 0.0f;
@@ -839,10 +905,15 @@ int main(int argc, char *argv[])
     vector<vec3> cubeColors;
     vector<unsigned int> cubeInds;
     
-    float sizeOfCube = 5.0f;
+	vector<vec3> plane;
+	vector<vec3> planeColor;
+	vector<unsigned int> planeInd;
 	
+	createPlane(&plane, &planeColor, &planeInd);
 
-	
+	float kWave = 6.0f;
+	float kInc = 1.0f;
+	vec3 airForce = vec3(0.0f,0.0f,0.0f);
 	//createJelloCubeSprings(&multipleSprings, cube, vec3(0.0f,0.0f,0.0f), sizeOfCube);
     while (!glfwWindowShouldClose(window))
     {
@@ -868,7 +939,8 @@ int main(int argc, char *argv[])
 			
 			cloth.clear();
 			clothInds.clear();
-			
+			isCube = false;
+			isCloth = false;
 			switch(scene)
 			{
 				case 0:
@@ -882,24 +954,21 @@ int main(int argc, char *argv[])
 				case 2:
 				{
 					createJelloCube(&cube, &cubeColors, &cubeInds, sizeOfCube, &multipleSprings, &massObjs);
-					//createBox(&box, &boxColor, &boxInds);
-					//createSpringBox(box, boxInds, &multipleSprings, &massObjs);
-				//	createCube(&multipleSprings);
+					isCube = true;
 					for(int i = 0; i < multipleSprings.size(); i++)
 					{
 						multipleSprings[i]->getMassA()->setIsCube(true);
 						multipleSprings[i]->getMassB()->setIsCube(true);
 					}
-				//	createSpringBox(box, boxInds, &multipleSprings, &massObjs);
+
 				}
-					//createCube(&multipleSprings);
-					//createJelloCube(&multipleSprings);
-				
 				break;
 				case 3:
 				{
-					createCloth(&cloth, &clothColor, &clothInds);
-					createClothSprings(cloth, clothInds, &multipleSprings, &massObjs);
+					isCloth = true;
+					createCloth(&cloth, &clothColor, &clothInds, sizeOfCloth, &multipleSprings, &massObjs);
+					//createCloth(&cloth, &clothColor, &clothInds);
+					//createClothSprings(cloth, clothInds, &multipleSprings, &massObjs);
 				}
 				break;
 				
@@ -916,8 +985,9 @@ int main(int argc, char *argv[])
 			}
 		}
 		//createJelloCube(&multipleSprings);
-		
+		glClearColor(0.5, 0.5, 0.5, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
+		
 		dt = 0.004f;
 		dt += extraTime;
 	
@@ -936,17 +1006,13 @@ int main(int argc, char *argv[])
 						springInd.clear();
 						colorSpring.clear();
 						
+	
 						
-						massFixed.clear();
-						massFixedInd.clear();
-						colorMassFixed.clear();
-						
-						//force = gravity;
+
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
 							multipleSprings[i]->zeroForce();
-							//printVec3(multipleSprings[i]->getMassA()->getForce());
-							//printVec3(multipleSprings[i]->getMassB()->getForce());
+
 						}
 						for(int j = 0; j < multipleSprings.size(); j++)
 						{
@@ -954,84 +1020,104 @@ int main(int argc, char *argv[])
 						}
 						for(int k = 0; k < multipleSprings.size(); k++)
 						{
+	
+
 							
+							if(isCloth)
+							{
+								
+								airForce = vec3(0.0f,0.0f,-3.0f);
+								multipleSprings[k]->setStiffness(kWave);
+								//multipleSprings[k]->setDampingCo(1.0f);
+								
+								
+							}
+								//test = vec3(5.0f, 0.0f, -5.0f);
 							if(!multipleSprings[k]->getMassA()->getCalced())
 							{
-								multipleSprings[k]->getMassA()->setForce((multipleSprings[k]->getMassA()->getForce() + gravity*multipleSprings[k]->getMassA()->getMass()));
+								
+								multipleSprings[k]->getMassA()->setForce((multipleSprings[k]->getMassA()->getForce() + gravity*multipleSprings[k]->getMassA()->getMass()+airForce));
 								multipleSprings[k]->getMassA()->resolveForces(dt);
 								multipleSprings[k]->getMassA()->setCalced(true);	
 							}
 							if(!multipleSprings[k]->getMassB()->getCalced())
 							{
-								multipleSprings[k]->getMassB()->setForce((multipleSprings[k]->getMassB()->getForce() + gravity*multipleSprings[k]->getMassB()->getMass()));
+								multipleSprings[k]->getMassB()->setForce((multipleSprings[k]->getMassB()->getForce() + gravity*multipleSprings[k]->getMassB()->getMass()+ airForce));
 								multipleSprings[k]->getMassB()->resolveForces(dt);
 								multipleSprings[k]->getMassB()->setCalced(true);
 							}
 								
 						}
-
+						if(kWave == 200.0f || kWave == 5.0f)
+						{
+							kInc *= -1.0f;
+							//cout << kWave << endl;
+						}
+						
+						kWave += kInc;
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
-
-							multipleSprings[i]->getMassA()->setPosition(multipleSprings[i]->getMassA()->getNewPos());
-							multipleSprings[i]->getMassB()->setPosition(multipleSprings[i]->getMassB()->getNewPos());
-							multipleSprings[i]->getMassA()->setNewVel();
-							multipleSprings[i]->getMassB()->setNewVel();
-
+							if(isCloth)
+							{
+								
+								if(!multipleSprings[i]->getMassA()->getIsFixed())
+								{
+									multipleSprings[i]->getMassA()->setPosition(multipleSprings[i]->getMassA()->getNewPos());
+									multipleSprings[i]->getMassA()->setNewVel();
+								}
+								if(!multipleSprings[i]->getMassB()->getIsFixed())
+								{
+									multipleSprings[i]->getMassB()->setPosition(multipleSprings[i]->getMassB()->getNewPos());
+									multipleSprings[i]->getMassB()->setNewVel();
+								}
+							}
+							else
+							{
+								multipleSprings[i]->getMassB()->setPosition(multipleSprings[i]->getMassB()->getNewPos());
+								multipleSprings[i]->getMassA()->setPosition(multipleSprings[i]->getMassA()->getNewPos());
+								multipleSprings[i]->getMassA()->setNewVel();
+								multipleSprings[i]->getMassB()->setNewVel();
+							}
+						
 							multipleSprings[i]->unCalced(); 
 						}
 					
-						/*Add the forces being appleied to the masses here*/
-						/*Apply gravity to each individual mass once then resolve forces*/
-						
-						/*------------------------------------------------*/
-					
 						extraTime = dt;
 						dt -= timeStep;
-				
-					
 					}
 			}
 			for(int i = 0; i < multipleSprings.size(); i++)
 			{
 				setupDraw(&masses, &massInd, &colorMass, &springs, &springInd, &colorSpring, multipleSprings[i]);
+			
 			}
-		
-		//	cout << "Spring Inds Size: " << springInd.size() << endl;		
-			
-			//loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-		//	renderPoints(vao, 0, cubeInds.size(), program, vbo, cube, cubeColors, cubeInds);
-			
-			
+
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
 			
-			cout << "colorMass Size: " << colorMass.size() << endl;
-			cout << "cubeColor Size: " << cubeColors.size() << endl;
+			if(isCube)
+			{
+				loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+				renderPlane(vao, 0, planeInd.size(), program, vbo, plane, planeColor, planeInd);
+			}
 			
-	
-			//glfwSwapInterval(1);
+
 			glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 			glfwPollEvents(); // sleep until next event before drawing again
-		//	if(play)
-	//		{
-				masses.clear();
-				massInd.clear();
-				colorMass.clear();
 
-				
-				springs.clear();
-				springInd.clear();
-				colorSpring.clear();
-				
-				
-				massFixed.clear();
-				massFixedInd.clear();
-				colorMassFixed.clear();
-		//	}
+			masses.clear();
+			massInd.clear();
+			colorMass.clear();
+
+			
+			springs.clear();
+			springInd.clear();
+			colorSpring.clear();
+
+
 		
 	}
 

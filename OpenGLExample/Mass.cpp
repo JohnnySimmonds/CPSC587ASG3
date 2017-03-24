@@ -13,7 +13,7 @@ Mass::Mass()
 {
 	setMass(mA);
 	setVelocity(v);
-	setIsFixed(false);
+//	setIsFixed(false);
 }
 Mass::~Mass()
 {
@@ -50,6 +50,7 @@ void Mass::resolveForces(float dt)
 
 		calced = true;
 	}
+	//printVec3(pos);
 
 }
 void Mass::setNewVel()
