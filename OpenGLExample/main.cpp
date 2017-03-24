@@ -606,8 +606,7 @@ void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int
 			cloth->push_back(vec3(x*scale,y*scale,z*scale));
 			normals->push_back(vec3(x/sizeOfCloth,y/sizeOfCloth,z/sizeOfCloth));
 			indices->push_back(currInd);
-			cout << "Cloth inds: " << currInd << endl;
-			printVec3(vec3(x*scale,y*scale,z*scale));
+
 			createClothSprings(springs, cloth, vec3(x,y,z), sizeOfCloth, indices, masses, z);
 		}
 		
@@ -967,8 +966,7 @@ int main(int argc, char *argv[])
 				{
 					isCloth = true;
 					createCloth(&cloth, &clothColor, &clothInds, sizeOfCloth, &multipleSprings, &massObjs);
-					//createCloth(&cloth, &clothColor, &clothInds);
-					//createClothSprings(cloth, clothInds, &multipleSprings, &massObjs);
+
 				}
 				break;
 				
@@ -984,7 +982,7 @@ int main(int argc, char *argv[])
 
 			}
 		}
-		//createJelloCube(&multipleSprings);
+
 		glClearColor(0.5, 0.5, 0.5, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	//Clear color and depth buffers (Haven't covered yet)
 		
@@ -1028,9 +1026,7 @@ int main(int argc, char *argv[])
 								
 								airForce = vec3(0.0f,0.0f,-3.0f);
 								multipleSprings[k]->setStiffness(kWave);
-								//multipleSprings[k]->setDampingCo(1.0f);
-								
-								
+		
 							}
 								//test = vec3(5.0f, 0.0f, -5.0f);
 							if(!multipleSprings[k]->getMassA()->getCalced())
@@ -1051,7 +1047,7 @@ int main(int argc, char *argv[])
 						if(kWave == 200.0f || kWave == 5.0f)
 						{
 							kInc *= -1.0f;
-							//cout << kWave << endl;
+
 						}
 						
 						kWave += kInc;
