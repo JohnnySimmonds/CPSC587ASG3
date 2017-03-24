@@ -463,101 +463,7 @@ void createCube(vector<Spring*> *springs)
 
 
 
-void createJelloCube(vector<Spring*> *springs)
-{
-	
-	int numSpringsPerFace = 0;
-	Spring *springNew;
 
-	/*Creating the Top row of the cube*/
-
-	Spring *springRoot = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f), false, false);
-	springs->push_back(springRoot);
-	Spring *springPrev = springRoot;
-	float moveMassBX = -1.0f;
-	for(int i = 0; i < numSpringsPerFace; i++)
-	{
-		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBX, 1.0f, 1.0f), false, false);
-		springNew->setMassA(springPrev->getMassB());
-		springs->push_back(springNew);
-		springPrev = springNew;
-		moveMassBX -= 1.0f;
-		
-	}
-
-	/* Create Left column*/
-	
-
-	float currSpotX = springPrev->getMassB()->getPosition().x;
-	//Spring *springYUp = new Spring(vec3(currSpotX, currSpotY, 1.0f), vec3(currSpotX, currSpotY+2.0f, 1.0f), false, false);
-	Spring *springYUp = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, 0.0f, 1.0f), false, false);
-	springYUp->setMassA(springPrev->getMassB());
-	//springYUp->getMassA()->setIsFixed(true);
-	springs->push_back(springYUp);
-	springPrev = springYUp;
-	float moveMassBY = -1.0f;
-	//y = springPrev->getMassB()->getPosition().y;
-	for(int i = 0; i < numSpringsPerFace; i++)
-	{
-		
-		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(currSpotX, moveMassBY, 1.0f), false, false);
-		springNew->setMassA(springPrev->getMassB());
-		springs->push_back(springNew);
-		springPrev = springNew;
-		moveMassBY -= 1.0f; 
-	}
-	Spring *springBotLeft = springPrev;
-
-	/* Creating right column of the cube*/
-
-	//Spring *springY = new Spring(vec3(1.0f, 1.0f, 1.0f), vec3(1.0f, -1.0f, 1.0f), false, false);
-	Spring *springY = new Spring(springRoot->getMassA()->getPosition(), vec3(1.0f, 0.0f, 1.0f), false, false);
-	springY->setMassA(springRoot->getMassA());
-	//springY->getMassA()->setIsFixed(true);
-	springs->push_back(springY);
-	springPrev = springY;
-	moveMassBY = -1.0f;
-	for(int i = 0; i < numSpringsPerFace; i++)
-	{
-		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(1.0f, moveMassBY, 1.0f), false, false);
-		springNew->setMassA(springPrev->getMassB());
-		springs->push_back(springNew);
-		springPrev = springNew;
-		moveMassBY -= 1.0f; 
-	}
-	
-	/* Creating the bottom row of the cube*/
-
-	float currSpotY = springPrev->getMassB()->getPosition().y;//-1.0 - ((numSpringsPerFace-2) * 2.0f);
-	//Spring *springXY = new Spring(vec3(1.0f, currSpotY, 1.0f), vec3(-1.0f, currSpotY, 1.0f), false, false);
-	Spring *springXY = new Spring(springPrev->getMassB()->getPosition(), vec3(0.0f, currSpotY, 1.0f), false, false);
-	springXY->setMassA(springPrev->getMassB());
-	//springXY->getMassA()->setIsFixed(true);
-	springs->push_back(springXY);
-	springPrev = springXY;
-	float moveMassBXY = -1.0f;
-	//float y = springPrev->getMassB()->getPosition().y;
-	for(int i = 0; i < numSpringsPerFace; i++)
-	{
-		springNew = new Spring(springPrev->getMassB()->getPosition(), vec3(moveMassBXY, currSpotY, 1.0f), false, false);
-		springNew->setMassA(springPrev->getMassB());
-		if(i+1 == numSpringsPerFace)
-		{
-			springNew->setMassB(springBotLeft->getMassB());
-		}
-			
-		springs->push_back(springNew);
-		springPrev = springNew;
-		moveMassBXY -= 1.0f; 
-	}
-	/*
-	Spring *springFinish = new Spring (springPrev->getMassB()->getPosition() , springBotLeft->getMassB()->getPosition(), false, false);
-	springFinish->setMassA(springPrev->getMassB());
-	springFinish->setMassB(springBotLeft->getMassB());
-	//springFinish->getMassB()->setIsFixed(true);
-	springs->push_back(springFinish);
-	*/
-}
 
 void setupDraw(vector<vec3> *mass, vector<unsigned int> *massInds, vector<vec3> *massColor, 
 vector<vec3> *spring, vector<unsigned int> *springsInd, vector<vec3> *springColor, Spring *springOne)
@@ -668,6 +574,32 @@ void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int
 	normals->push_back(vec3(1.0f,1.0f,1.0f));
 	normals->push_back(vec3(1.0f,1.0f,1.0f));
 	normals->push_back(vec3(1.0f,1.0f,1.0f));
+}
+
+void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned int> * indices)
+{
+	unsigned int currInd;
+	float sizeOfCube = 40.0f;
+	float scale = 0.5f;
+	for(float z = 0; z < sizeOfCube; z++)
+	{
+		for(float y = 0; y < sizeOfCube; y++)
+		{
+			for(float x = 0; x < sizeOfCube; x++)
+			{
+				currInd = (unsigned int)(x+(y*sizeOfCube)+(z*sizeOfCube*sizeOfCube));
+				cube->push_back(vec3(x*scale,y*scale,z*scale));
+				normals->push_back(vec3(x/sizeOfCube,y/sizeOfCube,z/sizeOfCube));
+				indices->push_back(currInd);
+				cout << "Index of Vertices: " << currInd << endl;
+				printVec3(vec3(x,y,z));
+			}
+			
+		}
+	}
+	
+	
+
 }
 
 void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *indices)
@@ -844,7 +776,12 @@ int main(int argc, char *argv[])
 	float extraTime = 0.0f;
 
     // run an event-triggered main loop
-
+    vector<vec3> cube;
+    vector<vec3> cubeColors;
+    vector<unsigned int> cubeInds;
+    
+	createJelloCube(&cube, &cubeColors, &cubeInds);
+	
     while (!glfwWindowShouldClose(window))
     {
 		if(!initSpringSys)
@@ -945,8 +882,8 @@ int main(int argc, char *argv[])
 						for( int i = 0; i < multipleSprings.size(); i++)
 						{
 							multipleSprings[i]->zeroForce();
-							printVec3(multipleSprings[i]->getMassA()->getForce());
-							printVec3(multipleSprings[i]->getMassB()->getForce());
+							//printVec3(multipleSprings[i]->getMassA()->getForce());
+							//printVec3(multipleSprings[i]->getMassB()->getForce());
 						}
 						for(int j = 0; j < multipleSprings.size(); j++)
 						{
@@ -998,15 +935,18 @@ int main(int argc, char *argv[])
 			}
 		
 		//	cout << "Spring Inds Size: " << springInd.size() << endl;		
+			
+			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+			renderPoints(vao, 0, cubeInds.size(), program, vbo, cube, cubeColors, cubeInds);
+			
+			/*
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
-			
-		//	loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-		//	renderLine(vao, 0, clothInds.size(), program, vbo, cloth, clothColor, clothInds);
-			
+			*/
+	
 			//glfwSwapInterval(1);
 			glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 			glfwPollEvents(); // sleep until next event before drawing again
