@@ -40,7 +40,7 @@ void QueryGLVersion();
 string LoadSource(const string &filename);
 GLuint CompileShader(GLenum shaderType, const string &source);
 GLuint LinkProgram(GLuint vertexShader, GLuint fragmentShader);
-
+void createJelloCubeSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 pos, float sizeOfCube, vector<unsigned int> *indices, vector<Mass*> *massObj);
 
 vec2 mousePos;
 bool leftmousePressed = false;
@@ -576,10 +576,17 @@ void createCloth(vector<vec3> *cloth, vector<vec3> *normals, vector<unsigned int
 	normals->push_back(vec3(1.0f,1.0f,1.0f));
 }
 
-void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned int> * indices)
+void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned int> *indices, float sizeOfCube, vector<Spring*> *springs, vector<Mass*> *masses)
 {
+	
+	for(int i = 0; i < sizeOfCube*sizeOfCube*sizeOfCube; i++)
+	{
+		Mass *massNew = new Mass();
+		masses->push_back(massNew);
+	}
+	
 	unsigned int currInd;
-	float sizeOfCube = 40.0f;
+	//float sizeOfCube = 3.0f;
 	float scale = 0.5f;
 	for(float z = 0; z < sizeOfCube; z++)
 	{
@@ -591,15 +598,67 @@ void createJelloCube(vector<vec3> *cube, vector<vec3> *normals, vector<unsigned 
 				cube->push_back(vec3(x*scale,y*scale,z*scale));
 				normals->push_back(vec3(x/sizeOfCube,y/sizeOfCube,z/sizeOfCube));
 				indices->push_back(currInd);
-				cout << "Index of Vertices: " << currInd << endl;
-				printVec3(vec3(x,y,z));
+				
+				
+				createJelloCubeSprings(springs, cube, vec3(x,y,z), sizeOfCube, indices, masses);
 			}
 			
 		}
 	}
-	
+
 	
 
+}
+bool isInBounds(vec3 pos, float sizeOfCube)
+{
+	if(pos.z >= 0 && pos.z < sizeOfCube)
+		if(pos.y >= 0 && pos.y < sizeOfCube)
+			if(pos.x >= 0 && pos.x < sizeOfCube)
+				return true;
+				
+	return false;
+}
+void createJelloCubeSprings(vector<Spring*> *springs, vector<vec3> *cube, vec3 pos, float sizeOfCube, vector<unsigned int> *indices, vector<Mass*> *massObj)
+{
+	vec3 newBPos;
+	unsigned int ind1, ind2;
+	
+	
+	for(float z = -1; z <= 1.0f; z++)
+	{
+		for(float y = -1; y <= 1.0f; y++)
+		{
+			for(float x = -1; x <= 1.0f; x++)
+			{
+				if(x==0 && y == 0 && z==0)
+				{
+						cout <<"WOOOOOOOOOOOOOOOOOOO" << endl;
+					continue;
+				}
+				if(isInBounds(pos+vec3(x,y,z), sizeOfCube))
+				{
+					newBPos = pos+vec3(x,y,z);
+					ind1 = (unsigned int)(pos.x+(pos.y*sizeOfCube)+(pos.z*sizeOfCube*sizeOfCube));
+					ind2 = (unsigned int)(newBPos.x+(newBPos.y*sizeOfCube)+(newBPos.z*sizeOfCube*sizeOfCube));
+					Spring* springNew = new Spring(pos, newBPos, false, false);
+					springNew->setMassA(massObj->at(ind1));
+					springNew->setMassB(massObj->at(ind2));
+					springNew->getMassA()->setPosition(pos);
+					springNew->getMassB()->setPosition(newBPos);
+					
+					springs->push_back(springNew);
+					
+					indices->push_back(ind1);
+					indices->push_back(ind2);
+					
+					//printVec3(pos+vec3(x,y,z));
+					//cout << endl;
+				}
+			}
+					
+		}
+	}
+	
 }
 
 void createBox(vector<vec3> *box, vector<vec3> *normals, vector<unsigned int> *indices)
@@ -780,8 +839,11 @@ int main(int argc, char *argv[])
     vector<vec3> cubeColors;
     vector<unsigned int> cubeInds;
     
-	createJelloCube(&cube, &cubeColors, &cubeInds);
+    float sizeOfCube = 5.0f;
 	
+
+	
+	//createJelloCubeSprings(&multipleSprings, cube, vec3(0.0f,0.0f,0.0f), sizeOfCube);
     while (!glfwWindowShouldClose(window))
     {
 		if(!initSpringSys)
@@ -819,8 +881,9 @@ int main(int argc, char *argv[])
 				
 				case 2:
 				{
-					createBox(&box, &boxColor, &boxInds);
-					createSpringBox(box, boxInds, &multipleSprings, &massObjs);
+					createJelloCube(&cube, &cubeColors, &cubeInds, sizeOfCube, &multipleSprings, &massObjs);
+					//createBox(&box, &boxColor, &boxInds);
+					//createSpringBox(box, boxInds, &multipleSprings, &massObjs);
 				//	createCube(&multipleSprings);
 					for(int i = 0; i < multipleSprings.size(); i++)
 					{
@@ -936,22 +999,25 @@ int main(int argc, char *argv[])
 		
 		//	cout << "Spring Inds Size: " << springInd.size() << endl;		
 			
-			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
-			renderPoints(vao, 0, cubeInds.size(), program, vbo, cube, cubeColors, cubeInds);
+			//loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
+		//	renderPoints(vao, 0, cubeInds.size(), program, vbo, cube, cubeColors, cubeInds);
 			
-			/*
+			
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderLine(vao, 0, springInd.size(), program, vbo, springs, colorSpring, springInd); 
 
 			loadUniforms(program, winRatio*perspectiveMatrix*cam.getMatrix(), mat4(1.0f));
 			renderPoints(vao, 0, massInd.size(), program, vbo, masses, colorMass, massInd);
-			*/
+			
+			cout << "colorMass Size: " << colorMass.size() << endl;
+			cout << "cubeColor Size: " << cubeColors.size() << endl;
+			
 	
 			//glfwSwapInterval(1);
 			glfwSwapBuffers(window);// scene is rendered to the back buffer, so swap to front for display
 			glfwPollEvents(); // sleep until next event before drawing again
-			if(play)
-			{
+		//	if(play)
+	//		{
 				masses.clear();
 				massInd.clear();
 				colorMass.clear();
@@ -965,7 +1031,7 @@ int main(int argc, char *argv[])
 				massFixed.clear();
 				massFixedInd.clear();
 				colorMassFixed.clear();
-			}
+		//	}
 		
 	}
 
